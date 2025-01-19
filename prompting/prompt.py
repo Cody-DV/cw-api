@@ -1,39 +1,30 @@
 import os
-from openai import OpenAI
+from openai import AzureOpenAI
 from dotenv import load_dotenv
 
 
 load_dotenv()
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
+
+endpoint = os.getenv("AZUREAI_ENDPOINT_URL", "https://cardwatch-reporting-ai.openai.azure.com/")
+deployment = os.getenv("DEPLOYMENT_NAME", "gpt-4o")
+subscription_key = os.getenv("AZURE_OPENAI_API_KEY")
+
+client = AzureOpenAI(  
+    azure_endpoint=endpoint,
+    api_key=subscription_key,
+    api_version="2024-10-01-preview",
 )
 
-# Mock data
-MOCK_DIETARY_DATA = [
-    {"food": "apple", "calories": 95, "nutrients": {"fiber": 4.4, "vitamin C": 8.4}},
-    {"food": "banana", "calories": 105, "nutrients": {"fiber": 3.1, "vitamin C": 10.3}},
-    {
-        "food": "chicken breast",
-        "calories": 165,
-        "nutrients": {"protein": 31, "fat": 3.6}
-    }
-]
-MOCK_ALLERGIES = ["peanuts", "shellfish", "gluten"]
-MOCK_RISK_FACTORS = ["high blood pressure", "diabetes", "high cholesterol"]
 
-
-def prompt():
-    data = {
-        "dietary_data": MOCK_DIETARY_DATA,
-        "allergies": MOCK_ALLERGIES,
-        "risk_factors": MOCK_RISK_FACTORS
-    }
-
+def prompt(data):
+    # TODO: Lower temperature on AI model to make results more consistant
+    # Create another function for general prompting
+ 
     response = client.chat.completions.create(
-        model="gpt-4o-2024-08-06",
+        model=deployment,
         messages=[
             {
-                "role": "developer",
+                "role": "system",
                 "content": "Given some dietary data you generate a report summarizing the user's caloric and \
                             nutritional intake. Assess if they are at risk of common dietary concerns based on \
                             their allergies and risk factors.",
@@ -86,7 +77,8 @@ def prompt():
                                     "type": "string"
                                 },
                                 "general_summary": {
-                                    "description": "A general summary of the dietary assessment",
+                                    "description": "A general summary of the dietary assessment \
+                                        and the customers overall health profile. Also show their customer ID",
                                     "type": "string"
                                 }
                             }

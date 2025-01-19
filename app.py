@@ -1,8 +1,7 @@
 import logging
 import json
 from flask import Flask, jsonify, request
-from data_collection.collector import collect_data
-from data_aggregation.aggregator import aggregate_data
+from data_aggregation.aggregator import get_customer_data
 from prompting.prompt import prompt
 from report_generation.report import generate_pdf_report
 
@@ -16,21 +15,13 @@ def status():
     return jsonify(message="API is active")
 
 
-@app.route("/collect", methods=["POST"])
-def collect():
-    data = collect_data(request.json)
-    return jsonify(data)
-
-
-@app.route("/aggregate", methods=["POST"])
-def aggregate():
-    data = aggregate_data(request.json)
-    return jsonify(data)
-
-
 @app.route("/prompt", methods=["GET"])
 def prompt_route():
-    response = prompt()
+    # TODO: Allow various types of prompting to ask for insights on a customer
+    # Allow for more features beyond report generation
+
+    customer_data = get_customer_data(1)
+    response = prompt(customer_data)
 
     # Decode the string into proper JSON
     decoded_json = json.loads(response)
@@ -38,13 +29,19 @@ def prompt_route():
     # Pretty-print the JSON (optional)
     print(json.dumps(decoded_json, indent=4))
 
-    # log.info(f"Response: {response}")
     return decoded_json
 
 
-@app.route("/generate-report", methods=["POST"])
+@app.route("/generate-report", methods=["GET"])
 def generate_report():
-    report = generate_pdf_report(request.json)
+    # TODO: Add parameters for customer ID, start date, end date
+    # Get customer profile, and transactions in the time window.
+    # Map nutrients from food consumed in transactions
+
+    customer_data = get_customer_data(1)
+    ai_response = json.loads(prompt(customer_data))
+    report = generate_pdf_report(ai_response)
+
     return jsonify(report)
 
 

@@ -1,0 +1,296 @@
+{
+    "TUNA SALAD SANDWICH": {
+        "total_quantity": 1,
+        "total_calories": 290,
+        "total_fat": 13.0,
+        "total_protein": 12.0
+    },
+    "Lemonade": {
+        "total_quantity": 16,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Spinach Dip": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Potstickers": {
+        "total_quantity": 5,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Orange Juice": {
+        "total_quantity": 58,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Cajun Catfish": {
+        "total_quantity": 25,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Bean Salad": {
+        "total_quantity": 5,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Garden Bar": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Coconut Shrimp": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Heineken": {
+        "total_quantity": 16,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Budweiser": {
+        "total_quantity": 7,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Dine In": {
+        "total_quantity": 23,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Open Food": {
+        "total_quantity": 18,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Dos Equis": {
+        "total_quantity": 14,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Stella Artois": {
+        "total_quantity": 5,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Yuengling": {
+        "total_quantity": 13,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Coors Light": {
+        "total_quantity": 5,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Guiness Stout": {
+        "total_quantity": 3,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Coffee": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "+ Small": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Char-Grilled Burger": {
+        "total_quantity": 2,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "+ Med Rare": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "+ Bacon": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "++ Extra Bacon": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "+ Lettuce": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "+ Onions": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "+ Cheddar": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "++ Extra Cheddar": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "+ White Bun": {
+        "total_quantity": 2,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "+ Chips": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Chicken Noodle": {
+        "total_quantity": 3,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Cookie": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Blueberry Cheesecake": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Beef Goulash": {
+        "total_quantity": 2,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Miller": {
+        "total_quantity": 4,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Yellow Tail Shiraz gls": {
+        "total_quantity": 4,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Meat Lovers Pizza": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Loaded Potato": {
+        "total_quantity": 2,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Fruit Platter": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "+ hello": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "+ Medium": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "+ Provolone": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "+ Tomato": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "+ Cole Slaw": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Checkout": {
+        "total_quantity": 1,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Raspberry Cream Cake": {
+        "total_quantity": 2,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Veg Pizza": {
+        "total_quantity": 2,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Shiraz": {
+        "total_quantity": 4,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    },
+    "Merlot": {
+        "total_quantity": 3,
+        "total_calories": 0,
+        "total_fat": 0,
+        "total_protein": 0
+    }
+}
