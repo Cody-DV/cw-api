@@ -1,4 +1,6 @@
 import os
+import sys
+
 from openai import AzureOpenAI
 from dotenv import load_dotenv
 
@@ -9,18 +11,18 @@ endpoint = os.getenv("AZUREAI_ENDPOINT_URL", "https://cardwatch-reporting-ai.ope
 deployment = os.getenv("DEPLOYMENT_NAME", "gpt-4o")
 subscription_key = os.getenv("AZURE_OPENAI_API_KEY")
 
-client = AzureOpenAI(  
+azure_openai = AzureOpenAI(
     azure_endpoint=endpoint,
     api_key=subscription_key,
     api_version="2024-10-01-preview",
 )
 
 
-def prompt(data):
+def get_ai_prompt_response(data):
     # TODO: Lower temperature on AI model to make results more consistant
     # Create another function for general prompting
- 
-    response = client.chat.completions.create(
+
+    response = azure_openai.chat.completions.create(
         model=deployment,
         messages=[
             {

@@ -2,7 +2,7 @@ import logging
 import json
 from flask import Flask, jsonify, request
 from data_aggregation.aggregator import get_customer_data
-from prompting.prompt import prompt
+from prompting.prompt import get_ai_prompt_response
 from report_generation.report import generate_pdf_report
 
 app = Flask(__name__)
@@ -21,7 +21,7 @@ def prompt_route():
     # Allow for more features beyond report generation
 
     customer_data = get_customer_data(1)
-    response = prompt(customer_data)
+    response = get_ai_prompt_response(customer_data)
 
     # Decode the string into proper JSON
     decoded_json = json.loads(response)
@@ -39,7 +39,7 @@ def generate_report():
     # Map nutrients from food consumed in transactions
 
     customer_data = get_customer_data(1)
-    ai_response = json.loads(prompt(customer_data))
+    ai_response = json.loads(get_ai_prompt_response(customer_data))
     report = generate_pdf_report(ai_response)
 
     return jsonify(report)
