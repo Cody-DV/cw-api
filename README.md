@@ -31,7 +31,7 @@ The application will be running in debug mode and can be accessed at `http://loc
 5. **Create a `.env` file**:  
    The application requires an OpenAI API key to function properly. Create a `.env` file in the root directory of the project and add your OpenAI API key and organization ID in the following format:
    ```
-   OPENAI_API_KEY=your_openai_api_key_here
+   AZURE_OPENAI_API_KEY=your_openai_api_key_here
    ```
    Replace `your_openai_api_key_here` with your actual OpenAI API key and organization ID.
 
