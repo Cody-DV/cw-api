@@ -1,5 +1,6 @@
 import logging
 import json
+from flask_cors import CORS
 from flask import Flask, jsonify, request
 from data_aggregation.aggregator import get_customer_data
 from prompting.prompt import get_ai_prompt_response
@@ -8,6 +9,10 @@ from report_generation.report import generate_pdf_report
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
+
+
+# Enable CORS for the Flask app
+CORS(app)
 
 
 @app.route("/", methods=["GET"])

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Dashboard</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Health & Dietary Dashboard</h1>
+        </header>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="clientSelect">Select Client:</label>
+                <select id="clientSelect">
+                    <option value="">Select a client...</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate">
+            </div>
+            
+            <div class="control-group">
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate">
+            </div>
+            
+            <button id="generateReport">Generate Report</button>
+        </div>
+
+        <div class="dashboard-content">
+            <div id="loading" class="hidden">Loading...</div>
+            <div id="error" class="hidden"></div>
+            
+            <div id="reportContainer" class="hidden">
+                <div class="report-section">
+                    <h2>Health Metrics</h2>
+                    <div id="healthMetrics"></div>
+                </div>
+                
+                <div class="report-section">
+                    <h2>Dietary Information</h2>
+                    <div id="dietaryInfo"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="/main.js"></script>
+</body>
+</html>
