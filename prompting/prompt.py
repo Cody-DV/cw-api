@@ -22,73 +22,25 @@ def get_ai_prompt_response(data):
     # TODO: Lower temperature on AI model to make results more consistant
     # Create another function for general prompting
 
+    with open('prompting/templates/response_format.json', 'r') as f:
+        response_format = f.read()
+    
+    response_format_str = str(response_format)
+
     response = azure_openai.chat.completions.create(
         model=deployment,
         messages=[
             {
                 "role": "system",
-                "content": "Given some dietary data you generate a report summarizing the user's caloric and \
+                "content": f"Given some dietary data you generate a report summarizing the user's caloric and \
                             nutritional intake. Assess if they are at risk of common dietary concerns based on \
-                            their allergies and risk factors.",
+                            their allergies and risk factors. The response should only contain a json object following the \
+                            format of the template provided below. Replace all placeholder values with data gathered from the \
+                            data provided by the user. If no data is available, replace empty fields with 'na' \
+                            and ensure valid json in the response. Template: {response_format_str}",
             },
             {"role": "user", "content": str(data)},
-        ],
-        response_format={
-            "type": "json_schema",
-            "json_schema": {
-                "name": "report_schema",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "nutrients": {
-                            "description": "The total nutrients intake",
-                            "type": "object",
-                            "properties": {
-                                "calories": {
-                                    "description": "The sum of caloric intake",
-                                    "type": "number"
-                                },
-                                "fiber": {
-                                    "description": "Total fiber intake",
-                                    "type": "number"
-                                },
-                                "vitamin C": {
-                                    "description": "Total vitamin C intake",
-                                    "type": "number"
-                                },
-                                "protein": {
-                                    "description": "Total protein intake",
-                                    "type": "number"
-                                },
-                                "fat": {
-                                    "description": "Total fat intake",
-                                    "type": "number"
-                                }
-                            }
-                        },
-                        "notes": {
-                            "description": "Dietary notes",
-                            "type": "object",
-                            "properties": {
-                                "dietary_restrictions": {
-                                    "description": "Details on dietary restrictions",
-                                    "type": "string"
-                                },
-                                "allergies": {
-                                    "description": "Information on allergies",
-                                    "type": "string"
-                                },
-                                "general_summary": {
-                                    "description": "A general summary of the dietary assessment \
-                                        and the customers overall health profile. Also show their customer ID",
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        ]
     )
 
     return response.choices[0].message.content
