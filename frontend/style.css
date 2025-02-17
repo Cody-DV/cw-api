@@ -133,11 +133,11 @@ pre {
     .dashboard-container {
         padding: 1rem;
     }
-    
+
     .controls {
         flex-direction: column;
     }
-    
+
     .control-group {
         width: 100%;
     }
