@@ -20,20 +20,22 @@ def test_status_route(client):
 @patch("app.get_ai_prompt_response")
 def test_prompt_route(mock_prompt, client):
     """Test prompt route with mock data"""
-    mock_response = json.dumps({
-        "nutrients": {
-            "calories": 1500,
-            "fiber": 30,
-            "vitamin C": 50,
-            "protein": 100,
-            "fat": 60
-        },
-        "notes": {
-            "dietary_restrictions": "Diabetes Type 1",
-            "allergies": "Peanut",
-            "general_summary": "Customer ID: A2E3R-8OJYT"
+    mock_response = json.dumps(
+        {
+            "nutrients": {
+                "calories": 1500,
+                "fiber": 30,
+                "vitamin C": 50,
+                "protein": 100,
+                "fat": 60,
+            },
+            "notes": {
+                "dietary_restrictions": "Diabetes Type 1",
+                "allergies": "Peanut",
+                "general_summary": "Customer ID: A2E3R-8OJYT",
+            },
         }
-    })
+    )
     mock_prompt.return_value = mock_response
 
     response = client.get("/prompt")
@@ -46,7 +48,10 @@ def test_prompt_route(mock_prompt, client):
 @patch("app.get_ai_prompt_response")
 def test_generate_report(mock_get_ai_prompt_response, mock_generate_pdf_report, client):
     """Test generate report endpoint with mock report generation"""
-    mock_generate_pdf_report.return_value = {"status": "Report generated", "file": "report.pdf"}
+    mock_generate_pdf_report.return_value = {
+        "status": "Report generated",
+        "file": "report.pdf",
+    }
     mock_get_ai_prompt_response.return_value = json.dumps({})
     response = client.get("/generate-report")
     assert response.status_code == 200

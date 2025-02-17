@@ -2,6 +2,7 @@ from fpdf import FPDF
 
 # TODO: Use templating to make PDFs consistent with what dietitians expect
 
+
 def generate_pdf_report(input_data):
     # Implement PDF report generation logic
     pdf = FPDF()
@@ -24,6 +25,8 @@ def generate_pdf_report(input_data):
     # Add Notes section
     pdf.cell(200, 10, txt="Notes", ln=True, align="L")
     for note_type, note_content in notes.items():
-        pdf.multi_cell(0, 10, txt=f"{note_type.replace('_', ' ').capitalize()}: {note_content}")
+        pdf.multi_cell(
+            0, 10, txt=f"{note_type.replace('_', ' ').capitalize()}: {note_content}"
+        )
     pdf.output("report.pdf")
     return {"status": "Report generated", "file": "report.pdf"}

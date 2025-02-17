@@ -18,18 +18,18 @@ export async function fetchClients() {
 export async function fetchHealthData(clientId, startDate, endDate) {
     try {
         const response = await fetch(
-            `${API_BASE_URL}/health-data?` + 
+            `${API_BASE_URL}/health-data?` +
             new URLSearchParams({
                 clientId,
                 startDate,
                 endDate
             })
         );
-        
+
         if (!response.ok) {
             throw new Error('Failed to fetch health data');
         }
-        
+
         return await response.json();
     } catch (error) {
         console.error('Error fetching health data:', error);
