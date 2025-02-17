@@ -28,6 +28,14 @@ def prompt_route():
     customer_data = get_customer_data(1)
     response = get_ai_prompt_response(customer_data)
 
+    # Find the first occurrence of '{' and the last occurrence of '}'
+    start_index = response.find('{')
+    end_index = response.rfind('}')
+
+    # Strip any text before the first '{' and after the last '}'
+    if start_index != -1 and end_index != -1:
+        response = response[start_index:end_index + 1]
+
     # Decode the string into proper JSON
     decoded_json = json.loads(response)
 

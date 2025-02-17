@@ -1,0 +1,57 @@
+,
+response_format={
+    "type": "json_schema",
+    "json_schema": {
+        "name": "report_schema",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "nutrients": {
+                    "description": "The total nutrients intake",
+                    "type": "object",
+                    "properties": {
+                        "calories": {
+                            "description": "The sum of caloric intake",
+                            "type": "number"
+                        },
+                        "fiber": {
+                            "description": "Total fiber intake",
+                            "type": "number"
+                        },
+                        "vitamin C": {
+                            "description": "Total vitamin C intake",
+                            "type": "number"
+                        },
+                        "protein": {
+                            "description": "Total protein intake",
+                            "type": "number"
+                        },
+                        "fat": {
+                            "description": "Total fat intake",
+                            "type": "number"
+                        }
+                    }
+                },
+                "notes": {
+                    "description": "Dietary notes",
+                    "type": "object",
+                    "properties": {
+                        "dietary_restrictions": {
+                            "description": "Details on dietary restrictions",
+                            "type": "string"
+                        },
+                        "allergies": {
+                            "description": "Information on allergies",
+                            "type": "string"
+                        },
+                        "general_summary": {
+                            "description": "A general summary of the dietary assessment \
+                                and the customers overall health profile. Also show their customer ID",
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
