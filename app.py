@@ -1,5 +1,6 @@
 import logging
 import json
+import os
 from flask_cors import CORS
 from flask import Flask, jsonify, request
 from data_aggregation.aggregator import get_customer_data
@@ -58,5 +59,11 @@ def generate_report():
     return jsonify(report)
 
 
+@app.route("/clients", methods=["GET"])
+def get_clients():
+    return jsonify([])
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5174))
+    app.run(debug=True, port=port)

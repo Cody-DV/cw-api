@@ -1,9 +1,11 @@
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://localhost:5174';
 
 // Fetch list of clients
 export async function fetchClients() {
     try {
-        const response = await fetch(`${API_BASE_URL}/clients`);
+        const response = await fetch(`${API_BASE_URL}/clients`, {
+            mode: 'cors',
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch clients');
         }
@@ -23,7 +25,9 @@ export async function fetchHealthData(clientId, startDate, endDate) {
                 clientId,
                 startDate,
                 endDate
-            })
+            }), {
+                mode: 'cors',
+            }
         );
 
         if (!response.ok) {
@@ -40,7 +44,9 @@ export async function fetchHealthData(clientId, startDate, endDate) {
 export async function fetchPromptResponse() {
     try {
         const response = await fetch(
-            `${API_BASE_URL}/prompt`
+            `${API_BASE_URL}/prompt`, {
+                mode: 'cors',
+            }
         );
 
         if (!response.ok) {
