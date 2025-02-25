@@ -49,3 +49,37 @@ The application will be running in debug mode and can be accessed at `http://loc
    - Click "Send" to execute the request.
 
    The response will be a JSON object containing the dietary report, which includes total nutrient intake and dietary notes based on the mock data.
+
+
+
+## Database Initialization
+
+1. **Pull Postgres Docker Image**:
+    ```
+    docker pull postgres
+    ```
+
+
+2. **Initialize Database**:
+   ```
+   docker run --name cw-postgres \
+   -e POSTGRES_PASSWORD=pass \
+   -v $(pwd)/db/initdb:/docker-entrypoint-initdb.d \
+   -p 5432:5432 \
+   -d postgres
+   ```
+
+3. **Populate tables with sample data**:
+    ```
+    cat db/populate_sample_data.sql | docker exec -i cw-postgres psql -U postgres -d patient_nutrition_demo
+    ```
+
+4. **Verify the data**:
+   ```
+   docker exec -it cw-postgres bash
+
+   psql -U postgres -d patient_nutrition_demo
+
+   \dt
+   ```
+
