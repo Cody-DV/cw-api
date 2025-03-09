@@ -23,10 +23,11 @@ To install the necessary dependencies and run the `cardwatch-reporting-api` appl
 4. **Run the application**:
    Start the Flask application by executing:
    ```bash
+   source .venv/bin/activate
    python app.py
    ```
 
-The application will be running in debug mode and can be accessed at `http://localhost:5000/`.
+The application will be running in debug mode and can be accessed at `http://localhost:5174/`.
 
 5. **Create a `.env` file**:
    The application requires an OpenAI API key to function properly. Create a `.env` file in the root directory of the project and add your OpenAI API key and organization ID in the following format:
@@ -40,12 +41,12 @@ The application will be running in debug mode and can be accessed at `http://loc
 
    **Using `curl`:**
    ```bash
-   curl -X GET http://localhost:5000/prompt
+   curl -X GET http://localhost:5174/prompt
    ```
 
    **Using Postman:**
    - Open Postman and create a new GET request.
-   - Enter the URL: `http://localhost:5000/prompt`
+   - Enter the URL: `http://localhost:5174/prompt`
    - Click "Send" to execute the request.
 
    The response will be a JSON object containing the dietary report, which includes total nutrient intake and dietary notes based on the mock data.

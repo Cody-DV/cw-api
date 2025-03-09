@@ -1,0 +1,123 @@
+{
+    "report_date": "2024-11-07",
+    "nutrition_profile": {
+        "calories": {
+            "eaten": "2000",
+            "target": "2500"
+        },
+        "macronutrients": {
+            "carbohydrate": {
+                "percentage": "50",
+                "target": "55"
+            },
+            "fat": {
+                "percentage": "30",
+                "target": "28"
+            },
+            "protein": {
+                "percentage": "20",
+                "target": "22"
+            },
+            "alcohol": {
+                "percentage": "0",
+                "target": "3"
+            }
+        },
+        "food_consumed": [
+            {
+                "meal": "Breakfast",
+                "time": "2024-11-07 08:00:00",
+                "items": [
+                    {
+                        "food": "Orange Juice",
+                        "quantity": "1 cup"
+                    },
+                    {
+                        "food": "Oatmeal",
+                        "quantity": "1 bowl"
+                    }
+                ]
+            },
+            {
+                "meal": "Lunch",
+                "time": "2024-11-07 12:00:00",
+                "items": [
+                    {
+                        "food": "Grilled Chicken Sandwich",
+                        "quantity": "1"
+                    },
+                    {
+                        "food": "Salad",
+                        "quantity": "1 bowl"
+                    }
+                ]
+            }
+        ],
+        "food_group_recommendations": {
+            "grain_products": {
+                "eaten": "6",
+                "target": "8"
+            },
+            "vegetables_fruit": {
+                "eaten": "5",
+                "target": "7"
+            },
+            "milk_alternatives": {
+                "eaten": "2",
+                "target": "3"
+            },
+            "meat_alternatives": {
+                "eaten": "3",
+                "target": "2"
+            }
+        },
+        "nutrient_intake": {
+            "carbohydrate": {
+                "eaten": "300",
+                "target": "350"
+            },
+            "fiber": {
+                "eaten": "25",
+                "target": "30"
+            },
+            "protein": {
+                "eaten": "75",
+                "target": "70"
+            },
+            "vitamins": {
+                "vitamin_a": {
+                    "eaten": "900",
+                    "target": "900"
+                },
+                "vitamin_c": {
+                    "eaten": "90",
+                    "target": "90"
+                },
+                "vitamin_d": {
+                    "eaten": "20",
+                    "target": "20"
+                }
+            },
+            "minerals": {
+                "calcium": {
+                    "eaten": "1000",
+                    "target": "1000"
+                },
+                "iron": {
+                    "eaten": "18",
+                    "target": "18"
+                },
+                "potassium": {
+                    "eaten": "3500",
+                    "target": "3500"
+                }
+            }
+        }
+    },
+    "summary": {
+        "calories": "You have consumed 2000 calories, which is below your target of 2500 calories.",
+        "macronutrients": "Your carbohydrate intake is slightly below target, while fat intake is slightly above. Protein intake is close to the target.",
+        "food_groups": "You are under the target for grain products and vegetables/fruit, but have exceeded the target for meat alternatives.",
+        "nutrients": "Your intake of carbohydrates and fiber is below target, while protein intake exceeds the target. Vitamin and mineral intake meets the targets."
+    }
+}

@@ -52,9 +52,22 @@ def generate_report():
     # Get customer profile, and transactions in the time window.
     # Map nutrients from food consumed in transactions
 
-    customer_data = get_customer_data(1)
-    ai_response = json.loads(get_ai_prompt_response(customer_data))
-    report = generate_pdf_report(ai_response)
+    # customer_data = get_customer_data(1)
+    # response = get_ai_prompt_response(customer_data)
+
+    #     # Find the first occurrence of '{' and the last occurrence of '}'
+    # start_index = response.find("{")
+    # end_index = response.rfind("}")
+
+    # # Strip any text before the first '{' and after the last '}'
+    # if start_index != -1 and end_index != -1:
+    #     response = response[start_index : end_index + 1]
+
+    # # Decode the string into proper JSON
+    # decoded_json = json.loads(response)
+    with open("report_generation/mock_report_data.json", "r") as file:
+        decoded_json = json.load(file)
+    report = generate_pdf_report(decoded_json)
 
     return jsonify(report)
 
