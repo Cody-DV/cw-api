@@ -1,4 +1,6 @@
 import json
+import logging
+from data_access.main import get_allergies, get_food_transactions, get_nutrient_targets, get_patients
 
 MOCK_DATA = {
     "customerData": {
@@ -58,17 +60,34 @@ MOCK_DATA = {
 
 
 def get_customer_data(id):
-    # TODO: Get data from CW customer API call
-    return json.dumps(MOCK_DATA)
+
+    data = collect_reporting_data(patient_id=1)
+    logging.info(data)
+
+    return data
 
 
-def get_transactions(id, start_date, end_date):
-    # TODO: Query transaction DB to get transactions for a given time window
-    pass
+def collect_reporting_data(patient_id):
+    patient_data = {}
 
+    # Get patient information
+    patient_info = get_patients(patient_id)
+    if patient_info:
+        patient_data['patient_info'] = patient_info[0]  # Assuming patient_id is unique
 
-def get_nutritional_data(transactions):
-    pass
+    # Get patient allergies
+    allergies = get_allergies(patient_id)
+    patient_data['allergies'] = allergies
+
+    # Get food transactions for the patient
+    food_transactions = get_food_transactions(patient_id)
+    patient_data['food_transactions'] = food_transactions
+
+    # Get nutrient targets for the patient
+    nutrient_targets = get_nutrient_targets(patient_id)
+    patient_data['nutrient_targets'] = nutrient_targets
+
+    return patient_data
 
 
 def aggregate_data():

@@ -24,7 +24,7 @@ def get_ai_prompt_response(data):
     # TODO: Lower temperature on AI model to make results more consistant
     # Create another function for general prompting
 
-    with open("prompting/templates/response_format.json", "r") as f:
+    with open("services/templates/response_format.json", "r") as f:
         response_format = f.read()
 
     response_format_str = str(response_format)
