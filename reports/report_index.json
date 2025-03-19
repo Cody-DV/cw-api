@@ -1,0 +1,84 @@
+{
+  "reports": [
+    {
+      "patient_id": "2",
+      "filename": "2_nutrition_20250316_103427.pdf",
+      "report_type": "nutrition",
+      "generated_at": "2025-03-16T10:34:28.279706",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-16"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250316_104635.pdf",
+      "report_type": "nutrition",
+      "generated_at": "2025-03-16T10:46:35.536852",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-16"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250316_112214.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "renderer": "xhtml2pdf",
+      "generated_at": "2025-03-16T11:22:14.755656",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-16"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250316_112707.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "renderer": "xhtml2pdf",
+      "generated_at": "2025-03-16T11:27:07.622495",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-16"
+      }
+    },
+    {
+      "patient_id": "2",
+      "filename": "2_nutrition_20250316_162850.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "renderer": "xhtml2pdf",
+      "generated_at": "2025-03-16T16:28:50.849357",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-16"
+      }
+    },
+    {
+      "patient_id": "2",
+      "filename": "2_nutrition_20250316_163733.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "renderer": "xhtml2pdf",
+      "generated_at": "2025-03-16T16:37:33.574737",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-16"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250316_164720.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "renderer": "weasyprint",
+      "generated_at": "2025-03-16T16:47:24.231156",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-16"
+      }
+    }
+  ]
+}

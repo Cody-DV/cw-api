@@ -20,4 +20,5 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True, port=5174)
+    # Use host='0.0.0.0' to make it accessible from outside the container
+    app.run(debug=True, host='0.0.0.0', port=5174)
