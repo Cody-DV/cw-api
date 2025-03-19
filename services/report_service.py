@@ -1,14 +1,18 @@
 """
-Simplified report generation module focusing on HTML and WeasyPrint PDF generation.
+Report service module
+Centralizes all report-related functionality
 """
 import os
-import logging
 import json
+import logging
 import math
 from datetime import datetime
 from io import BytesIO
-from services.report_storage import ensure_reports_directory, get_report_filename, store_report_metadata, REPORTS_DIR
 from services.prompt import get_dashboard_analysis
+from services.dashboard_service import format_dashboard_data, convert_dashboard_to_report_format
+
+# Define constants
+REPORTS_DIR = "reports"
 
 # Define global flags for available PDF generators
 WEASYPRINT_AVAILABLE = False
@@ -46,9 +50,135 @@ REPORT_SECTIONS = {
     "ai_analysis": "AI Nutritional Analysis"
 }
 
+# Report storage functions
+def ensure_reports_directory():
+    """
+    Ensure the reports directory exists.
+    """
+    if not os.path.exists(REPORTS_DIR):
+        os.makedirs(REPORTS_DIR)
+        logging.info(f"Created reports directory: {REPORTS_DIR}")
+
+def get_report_filename(patient_id, report_type="nutrition", format="pdf"):
+    """
+    Generate a filename for a report based on patient_id and timestamp.
+    
+    Args:
+        patient_id: ID of the patient
+        report_type: Type of report
+        format: File format extension
+        
+    Returns:
+        String filename
+    """
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return f"{patient_id}_{report_type}_{timestamp}.{format}"
+
+def store_report_metadata(patient_id, filename, report_type="nutrition", start_date=None, end_date=None, format="pdf", renderer=None):
+    """
+    Store metadata about a generated report.
+    
+    Args:
+        patient_id: ID of the patient
+        filename: Name of the report file
+        report_type: Type of report
+        start_date: Start date of report period
+        end_date: End date of report period
+        format: File format
+        renderer: PDF renderer used
+        
+    Returns:
+        Report metadata dictionary
+    """
+    ensure_reports_directory()
+    
+    metadata_file = os.path.join(REPORTS_DIR, "report_index.json")
+    
+    # Create or load the existing metadata index
+    if os.path.exists(metadata_file):
+        with open(metadata_file, "r") as f:
+            reports_index = json.load(f)
+    else:
+        reports_index = {"reports": []}
+    
+    # Determine format from filename if not specified
+    if not format:
+        ext = os.path.splitext(filename)[1].lower()
+        format = ext[1:] if ext else "pdf"  # Remove the dot
+    
+    # Create metadata for the new report
+    report_metadata = {
+        "patient_id": patient_id,
+        "filename": filename,
+        "report_type": report_type,
+        "format": format,
+        "renderer": renderer,
+        "generated_at": datetime.now().isoformat(),
+        "date_range": {
+            "start": start_date,
+            "end": end_date
+        }
+    }
+    
+    # Add to the index
+    reports_index["reports"].append(report_metadata)
+    
+    # Save the updated index
+    with open(metadata_file, "w") as f:
+        json.dump(reports_index, f, indent=2)
+    
+    return report_metadata
+
+def get_reports_for_patient(patient_id):
+    """
+    Get all reports for a specific patient.
+    
+    Args:
+        patient_id: ID of the patient
+        
+    Returns:
+        List of report metadata dictionaries
+    """
+    metadata_file = os.path.join(REPORTS_DIR, "report_index.json")
+    
+    if not os.path.exists(metadata_file):
+        return []
+    
+    with open(metadata_file, "r") as f:
+        reports_index = json.load(f)
+    
+    # Filter reports for the specified patient
+    patient_reports = [
+        report for report in reports_index.get("reports", [])
+        if str(report.get("patient_id")) == str(patient_id)
+    ]
+    
+    # Sort by generated_at date (newest first)
+    patient_reports.sort(
+        key=lambda x: x.get("generated_at", ""), 
+        reverse=True
+    )
+    
+    return patient_reports
+
+# Chart generation functions
 def create_simple_bar_chart_svg(actual, target, label="Value", width=300, height=100, 
                               color_actual="#3498db", color_target="#2ecc71"):
-    """Create a simple SVG bar chart comparing actual vs target."""
+    """
+    Create a simple SVG bar chart comparing actual vs target.
+    
+    Args:
+        actual: Actual value
+        target: Target value
+        label: Chart label
+        width: Chart width
+        height: Chart height
+        color_actual: Color for actual value bar
+        color_target: Color for target value bar
+        
+    Returns:
+        SVG chart as string
+    """
     # Calculate max for scaling
     max_value = max(actual, target) * 1.2  # Add 20% for headroom
     
@@ -78,7 +208,18 @@ def create_simple_bar_chart_svg(actual, target, label="Value", width=300, height
     return svg
 
 def create_progress_bar_svg(percentage, width=300, height=40, show_percentage=True):
-    """Create a simple SVG progress bar."""
+    """
+    Create a simple SVG progress bar.
+    
+    Args:
+        percentage: Percentage value (0-100)
+        width: Chart width
+        height: Chart height
+        show_percentage: Whether to show percentage text
+        
+    Returns:
+        SVG chart as string
+    """
     # Determine color based on percentage (using dashboard style)
     if percentage < 90:
         color = COLORS['warning']  # Yellow for below target
@@ -105,7 +246,18 @@ def create_progress_bar_svg(percentage, width=300, height=40, show_percentage=Tr
     return svg
 
 def create_macronutrient_pie_chart_svg(carbs, protein, fat, size=150):
-    """Create a simple SVG pie chart for macronutrients."""
+    """
+    Create a simple SVG pie chart for macronutrients.
+    
+    Args:
+        carbs: Carbohydrates percentage
+        protein: Protein percentage
+        fat: Fat percentage
+        size: Chart diameter
+        
+    Returns:
+        SVG chart as string
+    """
     total = carbs + protein + fat
     if total == 0:
         # Empty chart if no data
@@ -157,6 +309,7 @@ def create_macronutrient_pie_chart_svg(carbs, protein, fat, size=150):
     """
     return svg
 
+# Report generation functions
 def generate_html_report(input_data, patient_id=None, start_date=None, end_date=None, include_ai_analysis=True):
     """
     Generate an HTML report based on nutrition data.
@@ -172,7 +325,8 @@ def generate_html_report(input_data, patient_id=None, start_date=None, end_date=
         HTML content as a string
     """
     try:
-        logging.info(f"Generating HTML report for patient: {patient_id}")
+        logger = logging.getLogger(__name__)
+        logger.info(f"Generating HTML report for patient: {patient_id}")
         
         # Get patient info
         patient_info = input_data.get('patient_info', {})
@@ -192,7 +346,7 @@ def generate_html_report(input_data, patient_id=None, start_date=None, end_date=
             try:
                 ai_analysis = get_dashboard_analysis(input_data)
             except Exception as e:
-                logging.error(f"Error getting AI analysis: {str(e)}")
+                logger.error(f"Error getting AI analysis: {str(e)}")
                 ai_analysis = None
         
         # Generate HTML with inline CSS for consistent rendering
@@ -348,7 +502,7 @@ def generate_html_report(input_data, patient_id=None, start_date=None, end_date=
                 fat = float(macronutrients.get("fat", {}).get("percentage", 0))
                 pie_chart = create_macronutrient_pie_chart_svg(carbs, protein, fat)
             except Exception as e:
-                logging.error(f"Error creating macronutrient pie chart: {str(e)}")
+                logger.error(f"Error creating macronutrient pie chart: {str(e)}")
                 pie_chart = "<p>Error generating chart</p>"
             
             html += f"""
@@ -488,7 +642,8 @@ def generate_html_report(input_data, patient_id=None, start_date=None, end_date=
         return html
     
     except Exception as e:
-        logging.error(f"Error generating HTML report: {str(e)}")
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error generating HTML report: {str(e)}")
         # Return a minimal error HTML
         return f"""
         <!DOCTYPE html>
@@ -502,7 +657,7 @@ def generate_html_report(input_data, patient_id=None, start_date=None, end_date=
         """
 
 def generate_pdf_from_html(input_data, patient_id=None, start_date=None, end_date=None, 
-                          sections=None, filename=None, include_ai_analysis=True):
+                          sections=None, include_ai_analysis=True):
     """
     Generate a PDF report from nutrition data using HTML and WeasyPrint.
     
@@ -512,22 +667,22 @@ def generate_pdf_from_html(input_data, patient_id=None, start_date=None, end_dat
         start_date: Start date of the report period (for metadata)
         end_date: End date of the report period (for metadata)
         sections: List of sections to include (currently ignored in HTML version)
-        filename: Custom filename (if None, will be auto-generated)
         include_ai_analysis: Whether to include AI analysis section
         
     Returns:
         Dictionary with report status and file information
     """
     try:
-        logging.info(f"Generating HTML-based PDF report for patient: {patient_id}")
+        logger = logging.getLogger(__name__)
+        logger.info(f"Generating HTML-based PDF report for patient: {patient_id}")
         
         # Set up the report directory
         ensure_reports_directory()
         
         # Generate filename if not provided
-        if not filename and patient_id:
+        if patient_id:
             filename = get_report_filename(patient_id, format="pdf")
-        elif not filename:
+        else:
             filename = f"nutrition_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         
         filepath = os.path.join(REPORTS_DIR, filename)
@@ -541,20 +696,19 @@ def generate_pdf_from_html(input_data, patient_id=None, start_date=None, end_dat
             include_ai_analysis=include_ai_analysis
         )
         
-        logging.info("HTML content generated successfully")
+        logger.info("HTML content generated successfully")
         
-        # Try to generate PDF with WeasyPrint
+        # Generate PDF with WeasyPrint
         if WEASYPRINT_AVAILABLE:
             try:
-                logging.info("Generating PDF with WeasyPrint")
-                import weasyprint
+                logger.info("Generating PDF with WeasyPrint")
                 
                 pdf = weasyprint.HTML(string=html_content).write_pdf()
                 
                 with open(filepath, 'wb') as f:
                     f.write(pdf)
                     
-                logging.info(f"PDF created with WeasyPrint and saved to {filepath}")
+                logger.info(f"PDF created with WeasyPrint and saved to {filepath}")
                 
                 # Store metadata about this report
                 if patient_id:
@@ -577,7 +731,7 @@ def generate_pdf_from_html(input_data, patient_id=None, start_date=None, end_dat
                 }
             except Exception as e:
                 error_message = str(e)
-                logging.error(f"WeasyPrint generation failed: {error_message}")
+                logger.error(f"WeasyPrint generation failed: {error_message}")
                 # Fall back to HTML
         
         # If PDF generation failed, save HTML as fallback
@@ -585,7 +739,7 @@ def generate_pdf_from_html(input_data, patient_id=None, start_date=None, end_dat
         try:
             with open(html_filepath, 'w', encoding='utf-8') as f:
                 f.write(html_content)
-            logging.info(f"Saved HTML version as fallback to {html_filepath}")
+            logger.info(f"Saved HTML version as fallback to {html_filepath}")
             
             # Store metadata about this HTML report
             if patient_id:
@@ -619,7 +773,7 @@ An HTML version of the report has been saved instead."""
             }
         except Exception as html_error:
             error_message = f"Failed to create PDF with WeasyPrint and HTML fallback also failed: {str(html_error)}"
-            logging.error(error_message)
+            logger.error(error_message)
             return {
                 "status": "Error",
                 "error": error_message,
@@ -628,7 +782,8 @@ An HTML version of the report has been saved instead."""
             }
     
     except Exception as e:
-        logging.error(f"Critical error generating report: {str(e)}")
+        logger = logging.getLogger(__name__)
+        logger.error(f"Critical error generating report: {str(e)}")
         # Return error information instead of raising exception
         return {
             "status": "Error",
@@ -637,5 +792,60 @@ An HTML version of the report has been saved instead."""
             "path": None
         }
 
-# For backwards compatibility
-generate_pdf_report = generate_pdf_from_html
+def generate_patient_report(patient_data, patient_id=None, start_date=None, end_date=None, 
+                           sections=None, include_ai=True):
+    """
+    Generate a PDF report for a patient based on their data.
+    
+    Args:
+        patient_data: Patient data dictionary
+        patient_id: ID of the patient (optional)
+        start_date: Start date for report period (optional, format: YYYY-MM-DD)
+        end_date: End date for report period (optional, format: YYYY-MM-DD)
+        sections: List of sections to include (optional)
+        include_ai: Whether to include AI analysis (optional, default=True)
+        
+    Returns:
+        Dictionary with report status and file information
+    """
+    logger = logging.getLogger(__name__)
+    
+    # Format data for report
+    dashboard_data = format_dashboard_data(patient_data, start_date, end_date)
+    
+    # If AI analysis is requested, include it in the dashboard data
+    if include_ai and not dashboard_data.get('ai_analysis'):
+        try:
+            logger.info("Generating AI analysis for dashboard data...")
+            
+            # Generate analysis and parse JSON response
+            analysis_json = get_dashboard_analysis(patient_data)
+            analysis_data = json.loads(analysis_json)
+            
+            # Add analysis to dashboard data
+            dashboard_data['ai_analysis'] = analysis_data
+            logger.info("AI analysis successfully generated and added to dashboard data")
+        except Exception as analysis_error:
+            logger.error(f"Error generating AI analysis: {str(analysis_error)}")
+            # Continue without AI analysis
+    
+    # Generate report data format from dashboard data
+    report_data = convert_dashboard_to_report_format(dashboard_data)
+    
+    # Include AI analysis if it was generated
+    if dashboard_data.get('ai_analysis'):
+        report_data['ai_analysis'] = dashboard_data['ai_analysis']
+        logger.info("AI analysis included in report data")
+    
+    # Generate the PDF report
+    logger.info("Generating PDF report using WeasyPrint")
+    report_result = generate_pdf_from_html(
+        report_data,
+        patient_id=patient_id,
+        start_date=start_date,
+        end_date=end_date,
+        sections=sections,
+        include_ai_analysis=include_ai
+    )
+    
+    return report_result

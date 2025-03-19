@@ -79,6 +79,30 @@
         "start": "2023-03-01",
         "end": "2025-03-16"
       }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250319_112020.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "renderer": "weasyprint",
+      "generated_at": "2025-03-19T11:20:29.022707",
+      "date_range": {
+        "start": "2022-03-01",
+        "end": "2025-03-19"
+      }
+    },
+    {
+      "patient_id": "2",
+      "filename": "2_nutrition_20250319_115152.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "renderer": "weasyprint",
+      "generated_at": "2025-03-19T11:52:01.206252",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-19"
+      }
     }
   ]
 }
