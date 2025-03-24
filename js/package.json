@@ -1,0 +1,16 @@
+{
+  "name": "cardwatch-pdf-generator",
+  "version": "1.0.0",
+  "description": "PDF Generator for CardWatch Reporting API",
+  "main": "pdf-generator.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chart.js": "^4.4.1",
+    "puppeteer": "^22.8.2",
+    "html-pdf": "^3.0.1"
+  }
+}

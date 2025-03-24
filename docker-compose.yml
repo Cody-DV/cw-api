@@ -6,6 +6,7 @@ services:
     volumes:
       - ./:/app
       - ./reports:/app/reports
+      - node_modules:/app/js/node_modules
     environment:
       - FLASK_ENV=development
       - FLASK_APP=app.py
@@ -25,6 +26,17 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+  
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    depends_on:
+      - api
+    networks:
+      - cardwatch_network
   
   postgres:
     image: postgres:latest
@@ -46,6 +58,7 @@ services:
 
 volumes:
   postgres_data:
+  node_modules:
 
 networks:
   cardwatch_network:

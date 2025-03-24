@@ -1,0 +1,9 @@
+.git
+.github
+node_modules
+Dockerfile
+Dockerfile.*
+.dockerignore
+vite.config.js
+package.json
+package-lock.json

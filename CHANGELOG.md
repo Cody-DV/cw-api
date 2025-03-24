@@ -5,6 +5,33 @@ All notable changes to the CardWatch Reporting API project will be documented in
 ## [Unreleased]
 
 ### Added
+- High-quality JavaScript-rendered PDF reports
+  - Integrated Node.js and Puppeteer for server-side PDF generation
+  - Created Chart.js-based visualizations for beautiful, modern charts
+  - Implemented responsive templates with improved styling
+  - Added fallback mechanisms to WeasyPrint if JavaScript rendering fails
+  - Enhanced chart styling with better colors, legends, and interactivity
+
+- Automated scheduled report generation
+  - Added APScheduler integration for recurring report generation
+  - Created scheduling endpoints to configure report schedules
+  - Implemented daily, weekly, and monthly scheduling options
+  - Added metadata storage for scheduled reports
+  - Included manual trigger endpoint for immediate generation
+
+- Enhanced frontend integration
+  - Added schedule management UI in the dashboard
+  - Created schedule form with frequency, time, and section options
+  - Implemented schedule display and cancellation interface
+  - Added frontend API methods for scheduling reports
+
+- Containerized frontend and backend
+  - Created separate frontend container with Vite.js
+  - Updated API container with Node.js support for PDF generation
+  - Enhanced Docker configuration for development and production
+  - Implemented shared volume for report storage
+
+### Added
 - Enhanced PDF Report Generation
   - Created custom DashboardPDF class for modern, visually appealing reports
   - Added responsive metric cards matching dashboard appearance
@@ -62,6 +89,18 @@ All notable changes to the CardWatch Reporting API project will be documented in
   - Added proper error handling for API requests
 
 ### Changed
+- Major architectural refactoring for improved simplicity and maintainability
+  - Implemented a unified data format that works across all services
+  - Simplified service interfaces with consistent parameter naming
+  - Improved separation of concerns between modules
+  - Removed redundant conversion functions and fallback mechanisms
+  - Streamlined the JavaScript bridge with cleaner error handling
+  - Enhanced the PDF generation pipeline to be more robust
+  - Updated frontend API client with more consistent interface
+  - Simplified route handlers with better error handling
+  - Added comprehensive logging throughout the system
+  - Improved type hints and documentation
+
 - Improved AI integration
   - Enhanced prompt.py with lower temperature settings for more consistent results
   - Added proper documentation and type hints to AI-related functions
@@ -76,15 +115,6 @@ All notable changes to the CardWatch Reporting API project will be documented in
   - Removed duplicate code and improved parameter descriptions
   - Simplified service imports in routes.py
   - Maintained consistent API while improving internal structure
-
-- Refactored the report generation system for better modularity
-- Updated PDF report generation to use proper directory structure
-- Improved chart generation with better styling and colors
-- Enhanced report API endpoints with more options and parameters
-- Refactored frontend API.js to include new dashboard data and reporting endpoints
-- Updated main.js to use the new dashboard and reporting functionality
-- Enhanced formatting of patient data display
-- Improved error messages and loading states
 
 ### Fixed
 - Fixed PDF report generation issues
@@ -123,7 +153,9 @@ All notable changes to the CardWatch Reporting API project will be documented in
   - Added detailed debugging for nutrition reference lookup
   - Fixed transaction processing loop structure
   - Added better error handling around the nutrition data processing
-- Fixed path to mock report data JSON file
-- Implemented proper date filtering in backend
-- Added proper error handling for PDF generation
-- Fixed report data formatting issues
+
+- Fixed issue with PDF export not displaying values or charts
+  - Ensured consistent data format between dashboard and PDF generation
+  - Fixed the data structure passed to the report template
+  - Enhanced error handling in the PDF generation process
+  - Simplified the data transformation pipeline

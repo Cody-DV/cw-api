@@ -1,14 +1,15 @@
 {
-  "name": "vite-starter",
+  "name": "cardwatch-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "start": "http-server -p 3000 --cors -c-1"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.1"
   },
   "devDependencies": {
-    "vite": "^6.1.0"
+    "http-server": "^14.1.1"
   }
 }

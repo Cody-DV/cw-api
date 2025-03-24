@@ -1,6 +1,16 @@
-const API_BASE_URL = 'http://localhost:5174';
+/**
+ * CardWatch Reporting API Client
+ * 
+ * Provides a standardized interface for interacting with the reporting API
+ */
 
-// Fetch list of clients
+// Get API URL from environment or use default
+const API_BASE_URL = window.API_URL || 'http://localhost:5174';
+
+/**
+ * Fetch list of clients/patients
+ * @returns {Promise<Array>} Array of patient objects
+ */
 export async function fetchClients() {
     try {
         const response = await fetch(`${API_BASE_URL}/clients`, {
@@ -16,7 +26,138 @@ export async function fetchClients() {
     }
 }
 
-// Send a chat message and get AI response
+/**
+ * Fetch dashboard data for a specific patient
+ * 
+ * @param {string|number} patientId - ID of the patient
+ * @param {string} startDate - Start date (YYYY-MM-DD)
+ * @param {string} endDate - End date (YYYY-MM-DD)
+ * @param {boolean} includeAnalysis - Whether to include AI analysis
+ * @param {boolean} useUnifiedFormat - Whether to use the unified data format
+ * @returns {Promise<Object>} Dashboard data
+ */
+export async function fetchDashboardData(patientId, startDate, endDate, includeAnalysis = true, useUnifiedFormat = false) {
+    try {
+        const params = new URLSearchParams({
+            patient_id: patientId,
+            include_analysis: includeAnalysis
+        });
+        
+        if (startDate) params.append('start_date', startDate);
+        if (endDate) params.append('end_date', endDate);
+        if (useUnifiedFormat) params.append('format', 'unified');
+        
+        const response = await fetch(
+            `${API_BASE_URL}/dashboard-data?${params}`, {
+                mode: 'cors',
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch dashboard data');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        throw error;
+    }
+}
+
+/**
+ * Get the URL for embedded HTML report
+ * 
+ * @param {string|number} patientId - ID of the patient
+ * @param {string} startDate - Start date (YYYY-MM-DD)
+ * @param {string} endDate - End date (YYYY-MM-DD)
+ * @param {boolean} includeAnalysis - Whether to include AI analysis
+ * @returns {string} URL for the embedded report
+ */
+export function getEmbeddedReportUrl(patientId, startDate, endDate, includeAnalysis = true) {
+    const params = new URLSearchParams({
+        patient_id: patientId,
+        include_analysis: includeAnalysis
+    });
+    
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    
+    return `${API_BASE_URL}/embedded-report-html?${params}`;
+}
+
+/**
+ * Generate a PDF report for a patient
+ * 
+ * @param {string|number} patientId - ID of the patient
+ * @param {string} startDate - Start date (YYYY-MM-DD)
+ * @param {string} endDate - End date (YYYY-MM-DD)
+ * @param {Array<string>} sections - List of sections to include
+ * @param {boolean} includeAi - Whether to include AI analysis
+ * @returns {Promise<Object>} Report generation result
+ */
+export async function generatePdfReport(patientId, startDate, endDate, sections = null, includeAi = true) {
+    try {
+        const params = new URLSearchParams();
+        if (patientId) params.append('patient_id', patientId);
+        if (startDate) params.append('start_date', startDate);
+        if (endDate) params.append('end_date', endDate);
+        if (sections && sections.length > 0) params.append('sections', sections.join(','));
+        params.append('include_ai', includeAi.toString());
+        
+        const response = await fetch(
+            `${API_BASE_URL}/generate-report?${params}`, {
+                mode: 'cors',
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error('Failed to generate PDF report');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error generating PDF report:', error);
+        throw error;
+    }
+}
+
+/**
+ * Get all reports for a patient
+ * 
+ * @param {string|number} patientId - ID of the patient
+ * @returns {Promise<Object>} Object with patient ID and reports array
+ */
+export async function getPatientReports(patientId) {
+    try {
+        const params = new URLSearchParams({
+            patient_id: patientId
+        });
+        
+        const response = await fetch(
+            `${API_BASE_URL}/get-patient-reports?${params}`, {
+                mode: 'cors',
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch patient reports');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching patient reports:', error);
+        throw error;
+    }
+}
+
+/**
+ * Send a chat message and get AI response
+ * 
+ * @param {string|number} patientId - ID of the patient
+ * @param {string} message - The message to send
+ * @param {Array} chatHistory - Previous chat history
+ * @returns {Promise<Object>} Chat response
+ */
 export async function sendChatMessage(patientId, message, chatHistory = []) {
     try {
         const response = await fetch(`${API_BASE_URL}/chat`, {
@@ -40,129 +181,6 @@ export async function sendChatMessage(patientId, message, chatHistory = []) {
         return await response.json();
     } catch (error) {
         console.error('Error sending chat message:', error);
-        throw error;
-    }
-}
-
-// Fetch dashboard data for a specific patient and date range
-export async function fetchDashboardData(patientId, startDate, endDate, includeAnalysis = true) {
-    try {
-        const params = new URLSearchParams({
-            patient_id: patientId,
-            include_analysis: includeAnalysis
-        });
-        
-        if (startDate) params.append('start_date', startDate);
-        if (endDate) params.append('end_date', endDate);
-        
-        const response = await fetch(
-            `${API_BASE_URL}/dashboard-data?${params}`, {
-                mode: 'cors',
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch dashboard data');
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        throw error;
-    }
-}
-
-// Fetch health data for a specific client and date range (legacy endpoint)
-export async function fetchHealthData(clientId, startDate, endDate) {
-    try {
-        const response = await fetch(
-            `${API_BASE_URL}/health-data?` +
-            new URLSearchParams({
-                clientId,
-                startDate,
-                endDate
-            }), {
-                mode: 'cors',
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch health data');
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching health data:', error);
-        throw error;
-    }
-}
-
-export async function fetchPromptResponse() {
-    try {
-        const response = await fetch(
-            `${API_BASE_URL}/prompt`, {
-                mode: 'cors',
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch prompt response');
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching prompt response:', error);
-        throw error;
-    }
-}
-
-// Generate PDF report
-export async function generatePdfReport(patientId, startDate, endDate, sections = null, includeAi = true) {
-    try {
-        const params = new URLSearchParams();
-        if (patientId) params.append('patient_id', patientId);
-        if (startDate) params.append('start_date', startDate);
-        if (endDate) params.append('end_date', endDate);
-        if (sections && sections.length > 0) params.append('sections', sections.join(','));
-        params.append('include_ai', includeAi.toString());  // Add the includeAi parameter
-        
-        const response = await fetch(
-            `${API_BASE_URL}/generate-report?${params}`, {
-                mode: 'cors',
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error('Failed to generate PDF report');
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Error generating PDF report:', error);
-        throw error;
-    }
-}
-
-// Get patient's previously generated reports
-export async function getPatientReports(patientId) {
-    try {
-        const params = new URLSearchParams({
-            patient_id: patientId
-        });
-        
-        const response = await fetch(
-            `${API_BASE_URL}/get-patient-reports?${params}`, {
-                mode: 'cors',
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch patient reports');
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching patient reports:', error);
         throw error;
     }
 }

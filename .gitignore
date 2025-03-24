@@ -10,3 +10,6 @@ NEXT_STEPS.md
 CLAUDE.md
 checkpoint.md
 
+reports/*
+reports/*.html
+reports/*.pdf
