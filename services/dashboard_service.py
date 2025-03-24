@@ -13,12 +13,6 @@ from data_access.main import get_nutrition_reference
 
 logger = logging.getLogger(__name__)
 
-def ensure_date_string(date_obj):
-    """Convert a date object to string if needed"""
-    logger.info(f"++++++++++ - Ensuring date string: {date_obj}")
-    logger.info(f"++++++++++ - Date Obj type date string: {type(date_obj)}")
-
-    return date_obj
 
 def calculate_age(birth_date):
     """
@@ -55,6 +49,7 @@ def format_dashboard_data(patient_data: Dict[str, Any], start_date: Optional[str
         Formatted dashboard data dictionary
     """
     logger = logging.getLogger(__name__)
+    logger.info(f"<><><><> format dashbord data: {patient_data}")
     
     # Extract patient info
     patient_info = patient_data.get('patient_info', {})
@@ -78,6 +73,8 @@ def format_dashboard_data(patient_data: Dict[str, Any], start_date: Optional[str
             nutrition_ref_dict[ref_id] = ref
         except (ValueError, TypeError) as e:
             logger.error(f"Failed to process nutrition reference ID: {e}")
+
+    logger.info(f"Nutrition ref dict {nutrition_ref_dict}")
     
     # Filter transactions by date if start_date and end_date are provided
     if start_date and end_date:
@@ -118,6 +115,8 @@ def format_dashboard_data(patient_data: Dict[str, Any], start_date: Optional[str
         try:
             ref_id = int(transaction.get('nutrition_ref_id', 0))
             nutrition_info = nutrition_ref_dict.get(ref_id, {})
+
+            logger.info(nutrition_info)
             
             food_name = nutrition_info.get('food_name', 'Unknown item')
             serving_count = float(transaction.get('serving_count', 1))
@@ -138,14 +137,21 @@ def format_dashboard_data(patient_data: Dict[str, Any], start_date: Optional[str
             continue
     
     # Calculate macronutrient targets and actuals
-    carbs_actual = sum(float(nutrition_ref_dict.get(int(t.get('nutrition_ref_id', 0)), {}).get('carbohydrate', 0)) * float(t.get('serving_count', 1)) 
-                       for t in transactions if 'nutrition_ref_id' in t)
-    protein_actual = sum(float(nutrition_ref_dict.get(int(t.get('nutrition_ref_id', 0)), {}).get('protein', 0)) * float(t.get('serving_count', 1)) 
-                         for t in transactions if 'nutrition_ref_id' in t)
-    fat_actual = sum(float(nutrition_ref_dict.get(int(t.get('nutrition_ref_id', 0)), {}).get('fat', 0)) * float(t.get('serving_count', 1)) 
-                     for t in transactions if 'nutrition_ref_id' in t)
-    fiber_actual = sum(float(nutrition_ref_dict.get(int(t.get('nutrition_ref_id', 0)), {}).get('fiber', 0)) * float(t.get('serving_count', 1)) 
-                       for t in transactions if 'nutrition_ref_id' in t)
+    carbs_actual = 0
+    protein_actual = 0
+    fat_actual = 0
+    fiber_actual = 0
+
+    for t in transactions:
+        if 'nutrition_ref_id' in t:
+            ref_id = int(t.get('nutrition_ref_id', 0))
+            nutrition_info = nutrition_ref_dict.get(ref_id, {})
+            serving_count = float(t.get('serving_count', 1))
+
+            carbs_actual += float(nutrition_info.get('carbs_g', 0)) * serving_count
+            protein_actual += float(nutrition_info.get('protein_g', 0)) * serving_count
+            fat_actual += float(nutrition_info.get('fat_g', 0)) * serving_count
+            fiber_actual += float(nutrition_info.get('fiber_g', 0)) * serving_count
     
     # Default targets - these would normally come from a patient's profile
     calorie_target = 2000  # Default value
@@ -158,8 +164,8 @@ def format_dashboard_data(patient_data: Dict[str, Any], start_date: Optional[str
     dashboard_data = {
         'patient': {
             'id': patient_id,
-            'name': patient_info.get('name', f"Patient {patient_id}"),
-            'age': calculate_age(patient_info.get('birth_date')),
+            'name': f"{patient_info.get('first_name', '')} {patient_info.get('last_name', '')}",
+            'age': calculate_age(patient_info.get('date_of_birth')),
             'allergies': allergies
         },
         'nutrients': {
@@ -197,90 +203,6 @@ def format_dashboard_data(patient_data: Dict[str, Any], start_date: Optional[str
     
     return dashboard_data
 
-# def create_unified_report_format(dashboard_data: Dict[str, Any]) -> Dict[str, Any]:
-#     """
-#     Create a unified data format that works for both dashboard display and PDF/HTML reports.
-    
-#     Args:
-#         dashboard_data: Dashboard data (with or without AI analysis)
-        
-#     Returns:
-#         Unified format data dictionary
-#     """
-#     logger = logging.getLogger(__name__)
-    
-#     # Extract patient data
-#     patient = dashboard_data.get('patient', {})
-#     nutrients = dashboard_data.get('nutrients', {})
-#     food_items = dashboard_data.get('food_items', [])
-#     summary = dashboard_data.get('summary', {})
-    
-#     # Create unified structure
-#     unified_data = {
-#         'report_date': datetime.now().isoformat(),
-#         'patient_info': {
-#             'id': patient.get('id', ''),
-#             'name': patient.get('name', ''),
-#             'age': patient.get('age', ''),
-#             'allergies': patient.get('allergies', [])
-#         },
-#         'date_range': {
-#             'start': summary.get('date_range', {}).get('start', ''),
-#             'end': summary.get('date_range', {}).get('end', '')
-#         },
-#         'nutrients': {
-#             'calories': {
-#                 'actual': nutrients.get('calories', {}).get('actual', 0),
-#                 'target': nutrients.get('calories', {}).get('target', 0)
-#             },
-#             'macronutrients': {
-#                 'carbs': {
-#                     'actual': nutrients.get('carbs', {}).get('actual', 0),
-#                     'target': nutrients.get('carbs', {}).get('target', 0),
-#                     'percentage': calculate_percentage(
-#                         nutrients.get('carbs', {}).get('actual', 0),
-#                         nutrients.get('carbs', {}).get('target', 0)
-#                     )
-#                 },
-#                 'protein': {
-#                     'actual': nutrients.get('protein', {}).get('actual', 0),
-#                     'target': nutrients.get('protein', {}).get('target', 0),
-#                     'percentage': calculate_percentage(
-#                         nutrients.get('protein', {}).get('actual', 0),
-#                         nutrients.get('protein', {}).get('target', 0)
-#                     )
-#                 },
-#                 'fat': {
-#                     'actual': nutrients.get('fat', {}).get('actual', 0),
-#                     'target': nutrients.get('fat', {}).get('target', 0),
-#                     'percentage': calculate_percentage(
-#                         nutrients.get('fat', {}).get('actual', 0),
-#                         nutrients.get('fat', {}).get('target', 0)
-#                     )
-#                 },
-#                 'fiber': {
-#                     'actual': nutrients.get('fiber', {}).get('actual', 0),
-#                     'target': nutrients.get('fiber', {}).get('target', 0),
-#                     'percentage': calculate_percentage(
-#                         nutrients.get('fiber', {}).get('actual', 0),
-#                         nutrients.get('fiber', {}).get('target', 0)
-#                     )
-#                 }
-#             }
-#         },
-#         'food_items': food_items,
-#         'summary': {
-#             'total_calories': summary.get('total_calories', 0),
-#             'total_items_consumed': summary.get('total_items_consumed', 0)
-#         }
-#     }
-    
-#     # Include AI analysis if it exists in the dashboard data
-#     if 'ai_analysis' in dashboard_data:
-#         unified_data['ai_analysis'] = dashboard_data['ai_analysis']
-    
-#     logger.info(f"Created unified data format with {len(food_items)} food items")
-#     return unified_data
 
 def calculate_percentage(actual, target):
     """Calculate percentage of actual vs target"""
@@ -294,7 +216,6 @@ def get_dashboard_with_analysis(
     start_date: Optional[str] = None, 
     end_date: Optional[str] = None, 
     include_analysis: bool = False, 
-    return_unified: bool = False
 ) -> Dict[str, Any]:
     """
     Get formatted dashboard data with optional AI analysis
@@ -305,10 +226,9 @@ def get_dashboard_with_analysis(
         start_date: Optional start date for filtering (format: YYYY-MM-DD)
         end_date: Optional end date for filtering (format: YYYY-MM-DD)
         include_analysis: Whether to include AI analysis
-        return_unified: Whether to return the unified format instead of the dashboard format
         
     Returns:
-        Formatted dashboard data dictionary (or unified format if return_unified=True)
+        Formatted dashboard data dictionary)
     """
     logger = logging.getLogger(__name__)
     
@@ -335,12 +255,6 @@ def get_dashboard_with_analysis(
                 "RECOMMENDATIONS": "",
                 "HEALTH_INSIGHTS": ""
             }
-    
-    # Create the unified format if requested
-    # if return_unified:
-    #     unified_data = create_unified_report_format(dashboard_data)
-    #     logger.info(f"Unified data prepared for patient {patient_id}")
-    #     return unified_data
     
     logger.info(f"Dashboard data prepared for patient {patient_id} with {len(dashboard_data.get('food_items', []))} food items")
     return dashboard_data

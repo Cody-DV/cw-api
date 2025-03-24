@@ -1,5 +1,4 @@
-import { fetchClients, fetchDashboardData, fetchPromptResponse, generatePdfReport, sendChatMessage, scheduleReport, getScheduledReports, cancelScheduledReport, getEmbeddedReportUrl } from './api.js';
-import { initScheduledReports } from './schedule-reports.js';
+import { fetchClients, fetchDashboardData, generatePdfReport, sendChatMessage, getPatientReports } from './api.js';
 
 // DOM Elements
 const clientSelect = document.getElementById('clientSelect');
@@ -33,6 +32,7 @@ downloadPdfBtn.classList.add('hidden');
 async function initializeDashboard() {
     try {
         const clients = await fetchClients();
+
         populateClientSelect(clients);
         
         // Set default dates to current month
@@ -42,9 +42,6 @@ async function initializeDashboard() {
         // Format dates as YYYY-MM-DD
         startDateInput.value = formatDate(firstDay);
         endDateInput.value = formatDate(today);
-        
-        // Initialize scheduled reports UI
-        initScheduledReports();
         
     } catch (error) {
         showError('Failed to load clients. Please try again later.');
@@ -64,7 +61,7 @@ function populateClientSelect(clients) {
     clients.forEach(client => {
         const option = document.createElement('option');
         option.value = client.id;
-        option.textContent = client.name || `Patient ${client.id}`;
+        option.textContent = `${client.first_name} ${client.last_name}` || `Patient ${client.id}`;
         clientSelect.appendChild(option);
     });
 }
@@ -80,399 +77,18 @@ async function generateDashboard() {
     }
 
     showLoading();
-    
+    // Fall back to the legacy dashboard data as last resort
     try {
-        // Get the iframe URL for the embedded report - force 'test' for debugging
-        // This will display the same template with test data
-        const iframeUrl = getEmbeddedReportUrl('test', startDate, endDate, true);
-        
-        // Show the iframe-based report
-        displayIframeReport(iframeUrl, patientId, startDate, endDate);
+        const dashboardData = await fetchDashboardData(patientId, startDate, endDate);
+        console.log("[][][][] Dashboard data generateDashboardData", dashboardData)
+        displayDashboard(dashboardData);
         downloadPdfBtn.classList.remove('hidden');
-    } catch (error) {
-        console.error('Failed to load iframe report, falling back to unified data display', error);
-        
-        try {
-            // Fall back to unified data format if iframe loading fails
-            const unifiedData = await fetchUnifiedReportData(patientId, startDate, endDate, true);
-            displayUnifiedDashboard(unifiedData);
-            downloadPdfBtn.classList.remove('hidden');
-        } catch (unifiedError) {
-            console.error('Failed to fetch unified data, falling back to legacy format', unifiedError);
-            
-            // Fall back to the legacy dashboard data as last resort
-            try {
-                const dashboardData = await fetchDashboardData(patientId, startDate, endDate);
-                displayDashboard(dashboardData);
-                downloadPdfBtn.classList.remove('hidden');
-            } catch (fallbackError) {
-                showError('Failed to generate dashboard. Please try again.');
-                downloadPdfBtn.classList.add('hidden');
-            }
-        }
+    } catch (fallbackError) {
+        showError('Failed to generate dashboard. Please try again.');
+        downloadPdfBtn.classList.add('hidden');
     } finally {
         hideLoading();
     }
-}
-
-// Display the report using an iframe with the embedded HTML report
-// Fallback function for when the iframe approach fails
-async function fallbackToStandardDashboard(patientId, startDate, endDate) {
-    console.log("Falling back to standard dashboard display...");
-    
-    try {
-        // Get the unified data
-        const unifiedData = await fetchUnifiedReportData(patientId, startDate, endDate, true);
-        displayUnifiedDashboard(unifiedData);
-    } catch (error) {
-        console.error("Even unified dashboard fallback failed:", error);
-        
-        // Fall back to the legacy format as last resort
-        try {
-            const dashboardData = await fetchDashboardData(patientId, startDate, endDate);
-            displayDashboard(dashboardData);
-        } catch (finalError) {
-            showError('Failed to generate dashboard after multiple attempts. Please try again.');
-        }
-    }
-}
-
-function displayIframeReport(iframeUrl, originalPatientId, startDate, endDate) {
-    reportContainer.classList.remove('hidden');
-    errorElement.classList.add('hidden');
-    
-    // Reset containers - we'll use a different approach now
-    healthMetricsContainer.innerHTML = '';
-    dietaryInfoContainer.innerHTML = '';
-    
-    // Create an iframe container for the report
-    const reportFrame = document.createElement('div');
-    reportFrame.className = 'report-iframe-container';
-    
-    // Add a debug message
-    console.log("Attempting to load iframe from URL:", iframeUrl);
-    
-    reportFrame.innerHTML = `
-        <div class="report-controls">
-            <span class="iframe-status">Loading report...</span>
-            <div class="report-controls-buttons">
-                <button id="refreshReportBtn" class="refresh-btn">Refresh Report</button>
-                <button id="toggleFullscreenBtn" class="fullscreen-btn">Toggle Fullscreen</button>
-            </div>
-        </div>
-        <iframe 
-            id="reportIframe" 
-            src="${iframeUrl}" 
-            width="100%" 
-            height="800px" 
-            frameborder="0"
-            sandbox="allow-scripts allow-same-origin"
-        ></iframe>
-    `;
-    
-    // Add the iframe to the page
-    reportContainer.appendChild(reportFrame);
-    
-    // Add event listeners for the control buttons
-    const refreshReportBtn = document.getElementById('refreshReportBtn');
-    const toggleFullscreenBtn = document.getElementById('toggleFullscreenBtn');
-    const reportIframe = document.getElementById('reportIframe');
-    
-    // Update chat interface to work with the report
-    setupChatReportIntegration();
-    
-    // Get the status element
-    const iframeStatus = reportFrame.querySelector('.iframe-status');
-    
-    // Add error handling for the iframe
-    reportIframe.addEventListener('load', () => {
-        console.log("Report iframe loaded successfully!");
-        if (iframeStatus) {
-            iframeStatus.textContent = "Report loaded successfully";
-            iframeStatus.style.color = "green";
-            
-            // Try to access the iframe content to check if Chart.js is loaded
-            try {
-                // This might fail with cross-origin errors, that's normal
-                const iframeWindow = reportIframe.contentWindow;
-                console.log("Iframe content access:", iframeWindow ? "success" : "failed");
-            } catch (err) {
-                console.log("Unable to access iframe content (likely due to cross-origin policy):", err);
-            }
-        }
-    });
-    
-    reportIframe.addEventListener('error', (e) => {
-        console.error("Error loading report iframe:", e);
-        if (iframeStatus) {
-            iframeStatus.textContent = "Error loading report - falling back to standard view";
-            iframeStatus.style.color = "red";
-        }
-        
-        // Fall back to the standard dashboard if iframe fails to load
-        fallbackToStandardDashboard(originalPatientId, startDate, endDate);
-    });
-    
-    refreshReportBtn.addEventListener('click', () => {
-        // Refresh the iframe by reloading it
-        reportIframe.src = reportIframe.src;
-    });
-    
-    toggleFullscreenBtn.addEventListener('click', () => {
-        // Toggle fullscreen mode
-        if (reportIframe.requestFullscreen) {
-            reportIframe.requestFullscreen();
-        } else if (reportIframe.mozRequestFullScreen) { /* Firefox */
-            reportIframe.mozRequestFullScreen();
-        } else if (reportIframe.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-            reportIframe.webkitRequestFullscreen();
-        } else if (reportIframe.msRequestFullscreen) { /* IE/Edge */
-            reportIframe.msRequestFullscreen();
-        }
-    });
-    
-    // Add CSS for the iframe
-    if (!document.getElementById('iframe-styles')) {
-        const styles = document.createElement('style');
-        styles.id = 'iframe-styles';
-        styles.textContent = `
-            .report-iframe-container {
-                width: 100%;
-                margin-top: 20px;
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                overflow: hidden;
-                background-color: white;
-            }
-            
-            .report-controls {
-                display: flex;
-                justify-content: space-between;
-                padding: 10px;
-                background-color: #f8f9fa;
-                border-bottom: 1px solid #ddd;
-            }
-            
-            .iframe-status {
-                display: inline-block;
-                padding: 8px 10px;
-                font-size: 14px;
-                color: #888;
-            }
-            
-            .report-controls-buttons {
-                display: flex;
-            }
-            
-            .refresh-btn, .fullscreen-btn {
-                background-color: #3498db;
-                color: white;
-                border: none;
-                padding: 8px 15px;
-                border-radius: 4px;
-                cursor: pointer;
-                margin-left: 10px;
-            }
-            
-            .refresh-btn:hover, .fullscreen-btn:hover {
-                background-color: #2980b9;
-            }
-            
-            #reportIframe {
-                display: block;
-                border: none;
-            }
-        `;
-        document.head.appendChild(styles);
-    }
-}
-
-// Display the dashboard using the unified data format
-function displayUnifiedDashboard(unifiedData) {
-    reportContainer.classList.remove('hidden');
-    errorElement.classList.add('hidden');
-
-    // Display patient information
-    const patientInfo = unifiedData.patient_info || {};
-    const allergyList = patientInfo.allergies && patientInfo.allergies.length 
-        ? `<p><strong>Allergies:</strong> ${patientInfo.allergies.join(', ')}</p>` 
-        : '<p><strong>Allergies:</strong> None recorded</p>';
-    
-    healthMetricsContainer.innerHTML = `
-        <div class="metric-card">
-            <h3>Patient Information</h3>
-            <p><strong>Name:</strong> ${patientInfo.name || 'N/A'}</p>
-            <p><strong>Age:</strong> ${patientInfo.age || 'N/A'}</p>
-            ${allergyList}
-        </div>
-    `;
-
-    // Display nutrient information
-    const calories = unifiedData.nutrients.calories || {};
-    const macros = unifiedData.nutrients.macronutrients || {};
-    
-    const nutrientHtml = `
-        <div class="metric-card">
-            <h3>Calories</h3>
-            <p><strong>Target:</strong> ${calories.target || 0}</p>
-            <p><strong>Actual:</strong> ${calories.actual || 0}</p>
-            <div class="progress-bar">
-                <div class="progress" style="width: ${calculatePercentage(calories.actual, calories.target)}%"></div>
-            </div>
-            <p class="percentage">${calculatePercentage(calories.actual, calories.target)}%</p>
-        </div>
-        <div class="metric-card">
-            <h3>Carbohydrates</h3>
-            <p><strong>Target:</strong> ${macros.carbs?.target || 0}g</p>
-            <p><strong>Actual:</strong> ${macros.carbs?.actual || 0}g</p>
-            <div class="progress-bar">
-                <div class="progress" style="width: ${calculatePercentage(macros.carbs?.actual, macros.carbs?.target)}%"></div>
-            </div>
-            <p class="percentage">${calculatePercentage(macros.carbs?.actual, macros.carbs?.target)}%</p>
-        </div>
-        <div class="metric-card">
-            <h3>Protein</h3>
-            <p><strong>Target:</strong> ${macros.protein?.target || 0}g</p>
-            <p><strong>Actual:</strong> ${macros.protein?.actual || 0}g</p>
-            <div class="progress-bar">
-                <div class="progress" style="width: ${calculatePercentage(macros.protein?.actual, macros.protein?.target)}%"></div>
-            </div>
-            <p class="percentage">${calculatePercentage(macros.protein?.actual, macros.protein?.target)}%</p>
-        </div>
-        <div class="metric-card">
-            <h3>Fat</h3>
-            <p><strong>Target:</strong> ${macros.fat?.target || 0}g</p>
-            <p><strong>Actual:</strong> ${macros.fat?.actual || 0}g</p>
-            <div class="progress-bar">
-                <div class="progress" style="width: ${calculatePercentage(macros.fat?.actual, macros.fat?.target)}%"></div>
-            </div>
-            <p class="percentage">${calculatePercentage(macros.fat?.actual, macros.fat?.target)}%</p>
-        </div>
-        <div class="metric-card">
-            <h3>Fiber</h3>
-            <p><strong>Target:</strong> ${macros.fiber?.target || 0}g</p>
-            <p><strong>Actual:</strong> ${macros.fiber?.actual || 0}g</p>
-            <div class="progress-bar">
-                <div class="progress" style="width: ${calculatePercentage(macros.fiber?.actual, macros.fiber?.target)}%"></div>
-            </div>
-            <p class="percentage">${calculatePercentage(macros.fiber?.actual, macros.fiber?.target)}%</p>
-        </div>
-    `;
-
-    // Display food items - use either the food_items array or food_consumed
-    const foodItems = unifiedData.food_items || [];
-    const foodConsumed = unifiedData.food_consumed || [];
-    
-    let foodItemsHtml = '';
-    
-    if (foodItems.length > 0) {
-        // Use the direct food items array
-        foodItemsHtml = foodItems.map(item => `
-            <tr>
-                <td>${item.name || 'Unknown'}</td>
-                <td>${item.quantity || 1}</td>
-                <td>${item.date || 'N/A'}</td>
-            </tr>
-        `).join('');
-    } else if (foodConsumed.length > 0) {
-        // Use the food_consumed structure
-        foodConsumed.forEach(meal => {
-            if (meal.items && meal.items.length > 0) {
-                meal.items.forEach(item => {
-                    foodItemsHtml += `
-                        <tr>
-                            <td>${item.food || 'Unknown'}</td>
-                            <td>${item.quantity || '1'}</td>
-                            <td>${meal.time || 'N/A'}</td>
-                        </tr>
-                    `;
-                });
-            }
-        });
-    }
-    
-    if (!foodItemsHtml) {
-        foodItemsHtml = '<tr><td colspan="3">No food items recorded</td></tr>';
-    }
-
-    // Summary
-    const summary = unifiedData.summary || {};
-    
-    // AI Analysis Section HTML
-    let aiAnalysisHtml = '';
-    if (unifiedData.ai_analysis) {
-        const analysis = unifiedData.ai_analysis;
-        aiAnalysisHtml = `
-            <div class="ai-analysis-section">
-                <h3>AI Nutritional Analysis</h3>
-                <div class="ai-analysis-content">
-                    ${analysis.SUMMARY ? `
-                        <div class="analysis-card">
-                            <h4>Summary</h4>
-                            <p>${analysis.SUMMARY}</p>
-                        </div>
-                    ` : ''}
-                    
-                    ${analysis.ANALYSIS ? `
-                        <div class="analysis-card">
-                            <h4>Detailed Analysis</h4>
-                            <p>${analysis.ANALYSIS}</p>
-                        </div>
-                    ` : ''}
-                    
-                    ${analysis.RECOMMENDATIONS ? `
-                        <div class="analysis-card">
-                            <h4>Recommendations</h4>
-                            <p>${analysis.RECOMMENDATIONS}</p>
-                        </div>
-                    ` : ''}
-                    
-                    ${analysis.HEALTH_INSIGHTS ? `
-                        <div class="analysis-card">
-                            <h4>Health Insights</h4>
-                            <p>${analysis.HEALTH_INSIGHTS}</p>
-                        </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    }
-    
-    dietaryInfoContainer.innerHTML = `
-        <div class="report-grid">
-            <div class="nutrients-section">
-                <h3>Nutrient Information</h3>
-                <div class="nutrient-cards">
-                    ${nutrientHtml || '<p>No nutrient data available</p>'}
-                </div>
-            </div>
-            
-            <div class="food-items-section">
-                <h3>Food Items Consumed</h3>
-                <p>Total Items: ${summary.total_items_consumed || foodItems.length || 0}</p>
-                <p>Total Calories: ${summary.total_calories || calories.actual || 0}</p>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Quantity</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${foodItemsHtml}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            ${aiAnalysisHtml}
-        </div>
-    `;
-
-    // Add CSS for the new elements
-    addDashboardStyles();
 }
 
 // Download PDF report with customization options
@@ -492,6 +108,7 @@ async function downloadPdfReport() {
     const { sections, includeAi } = reportOptions;
 
     showLoading();
+    
     try {
         // Generate a PDF report using the same unified data format for consistency
         // The same data used in the dashboard will be used for the PDF
@@ -910,19 +527,6 @@ function displayPreviousReports(reports) {
     
     // Make the section visible
     reportsSection.classList.remove('hidden');
-}
-
-// Display prompt response (legacy function)
-async function fetchAndDisplayPromptResponse() {
-    showLoading();
-    try {
-        const promptResponse = await fetchPromptResponse();
-        displayPromptResponse(promptResponse);
-    } catch (error) {
-        showError('Failed to fetch prompt response. Please try again.');
-    } finally {
-        hideLoading();
-    }
 }
 
 function displayPromptResponse(data) {

@@ -36,7 +36,7 @@ export async function fetchClients() {
  * @param {boolean} useUnifiedFormat - Whether to use the unified data format
  * @returns {Promise<Object>} Dashboard data
  */
-export async function fetchDashboardData(patientId, startDate, endDate, includeAnalysis = true, useUnifiedFormat = false) {
+export async function fetchDashboardData(patientId, startDate, endDate, includeAnalysis = true) {
     try {
         const params = new URLSearchParams({
             patient_id: patientId,
@@ -45,7 +45,6 @@ export async function fetchDashboardData(patientId, startDate, endDate, includeA
         
         if (startDate) params.append('start_date', startDate);
         if (endDate) params.append('end_date', endDate);
-        if (useUnifiedFormat) params.append('format', 'unified');
         
         const response = await fetch(
             `${API_BASE_URL}/dashboard-data?${params}`, {
@@ -64,26 +63,6 @@ export async function fetchDashboardData(patientId, startDate, endDate, includeA
     }
 }
 
-/**
- * Get the URL for embedded HTML report
- * 
- * @param {string|number} patientId - ID of the patient
- * @param {string} startDate - Start date (YYYY-MM-DD)
- * @param {string} endDate - End date (YYYY-MM-DD)
- * @param {boolean} includeAnalysis - Whether to include AI analysis
- * @returns {string} URL for the embedded report
- */
-export function getEmbeddedReportUrl(patientId, startDate, endDate, includeAnalysis = true) {
-    const params = new URLSearchParams({
-        patient_id: patientId,
-        include_analysis: includeAnalysis
-    });
-    
-    if (startDate) params.append('start_date', startDate);
-    if (endDate) params.append('end_date', endDate);
-    
-    return `${API_BASE_URL}/embedded-report-html?${params}`;
-}
 
 /**
  * Generate a PDF report for a patient

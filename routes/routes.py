@@ -5,6 +5,7 @@ Routes module for CardWatch Reporting API
 
 Defines all API routes and endpoints for the application
 """
+import logging
 import os
 import json
 from flask import Blueprint, jsonify, request, current_app as app
@@ -17,6 +18,8 @@ from data_access.main import get_patients
 
 # Create Blueprint for all routes
 routes_bp = Blueprint("routes", __name__)
+logger = logging.getLogger(__name__)
+
 
 def get_patient_data(patient_id):
     """Helper function to collect patient data."""
@@ -42,6 +45,13 @@ def status():
 def get_clients():
     """Get all clients/patients"""
     patients = get_patients()
+
+    logger.info(f"ROUTES: Retrieved {len(patients)} clients from the database")
+    if patients:
+        logger.info(f"Sample client data: {patients[0]}")
+    else:
+        logger.warning("No clients found in the database!")
+
     return jsonify(patients)
 
 @routes_bp.route("/dashboard-data", methods=["GET"])
@@ -67,55 +77,11 @@ def get_dashboard_data():
             start_date=start_date,
             end_date=end_date,
             include_analysis=include_analysis,
-            return_unified=(data_format.lower() == 'unified')
         )
         return jsonify(result_data)
     except Exception as e:
         return handle_exception(e, "Failed to generate dashboard data")
 
-@routes_bp.route("/embedded-report-html", methods=["GET"])
-def get_embedded_report_html():
-    """
-    Generate embedded HTML report for a specific patient.
-    """
-    patient_id = request.args.get('patient_id')
-    validation_error = validate_patient_id(patient_id)
-    if validation_error:
-        return validation_error
-
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    include_analysis = request.args.get('include_analysis', 'true').lower() == 'true'
-
-    try:
-        patient_data = get_patient_data(patient_id)
-        data = get_dashboard_with_analysis(
-            patient_data=patient_data,
-            patient_id=patient_id,
-            start_date=start_date,
-            end_date=end_date,
-            include_analysis=include_analysis,
-            return_unified=True
-        )
-        template_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "js", "templates", "report-template.html"
-        )
-        with open(template_path, 'r') as f:
-            template_content = f.read()
-        output_html = template_content.replace(
-            '/* DATA_PLACEHOLDER */',
-            f'const reportData = {json.dumps(data, cls=DateTimeEncoder)};'
-        )
-        response_headers = {
-            'Content-Type': 'text/html',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET',
-            'Access-Control-Allow-Headers': 'Content-Type'
-        }
-        return output_html, 200, response_headers
-    except Exception as e:
-        return handle_exception(e, "Failed to generate embedded report")
 
 @routes_bp.route("/generate-report", methods=["GET"])
 def generate_report():
@@ -159,6 +125,7 @@ def get_patient_reports():
 
     try:
         reports = get_reports_for_patient(patient_id)
+        logger.info(f"Retrieved {len(reports)} reports for patient {patient_id}")
         return jsonify({"patient_id": patient_id, "reports": reports})
     except Exception as e:
         return handle_exception(e, "Failed to retrieve reports")

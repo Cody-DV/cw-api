@@ -6,11 +6,11 @@ Centralizes all report-related functionality for creating, storing, and retrievi
 import os
 import json
 import logging
-from datetime import datetime, timezone
-from typing import Dict, List, Any, Optional, Union
+from datetime import datetime
+from typing import Dict, List, Any, Optional
 
-from services.dashboard_service import ensure_date_string, get_dashboard_with_analysis
-from services.js_bridge_service import generate_html_file, generate_pdf, DateTimeEncoder
+from services.dashboard_service import get_dashboard_with_analysis
+from services.js_bridge_service import generate_html_file, generate_pdf
 
 # Define constants
 REPORTS_DIR = "reports"
@@ -168,11 +168,6 @@ def generate_patient_report(
     """
     logger = logging.getLogger(__name__)
     
-    # Format data for report
-    # Ensure dates are strings
-    # start_date_str = ensure_date_string(start_date)
-    # end_date_str = ensure_date_string(end_date)
-    
     # Get unified dashboard data with analysis
     data = get_dashboard_with_analysis(
         patient_data=patient_data,
@@ -180,7 +175,6 @@ def generate_patient_report(
         start_date=start_date,
         end_date=end_date,
         include_analysis=include_ai,
-        return_unified=True
     )
 
     if 'date_range' not in data:
@@ -253,6 +247,7 @@ def generate_patient_report(
 
         logger.info(f"Returning response: {response}")
         return response
+    
     
     except Exception as e:
         logger.error(f"Report generation failed: {str(e)}")

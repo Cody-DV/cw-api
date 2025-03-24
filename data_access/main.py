@@ -2,6 +2,8 @@ import psycopg2
 from psycopg2.extras import DictCursor
 
 import os
+import logging
+
 
 def get_db_connection():
     # Connect to the PostgreSQL database
@@ -26,6 +28,16 @@ def get_patients(patient_id=None):
     else:
         cur.execute("SELECT * FROM patients")
     patients = cur.fetchall()
+
+    # Log the number of patients retrieved
+    logging.info(f"Retrieved {len(patients)} patients from the database")
+
+    # Log a sample patient if available
+    if patients:
+        logging.info(f"Sample patient data: {dict(patients[0])}")
+    else:
+        logging.warning("No patients found in the database!")
+
     cur.close()
     conn.close()
     return [dict(row) for row in patients]

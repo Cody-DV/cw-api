@@ -400,6 +400,17 @@
         "start": "2023-03-01",
         "end": "2025-03-24"
       }
+    },
+    {
+      "patient_id": "2",
+      "filename": "2_nutrition_20250324_200158.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250324_200220",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-24"
+      }
     }
   ]
 }

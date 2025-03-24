@@ -2,7 +2,7 @@ import os
 import sys
 import json
 import logging
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any
 
 from openai import AzureOpenAI
 from dotenv import load_dotenv
