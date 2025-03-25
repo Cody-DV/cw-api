@@ -13,3 +13,5 @@ checkpoint.md
 reports/*
 reports/*.html
 reports/*.pdf
+reports/*.json
+data_storage/

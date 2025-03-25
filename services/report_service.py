@@ -11,6 +11,7 @@ from typing import Dict, List, Any, Optional
 
 from services.dashboard_service import get_dashboard_with_analysis
 from services.js_bridge_service import generate_html_file, generate_pdf
+from utils.utils import convert_dates_to_strings
 
 # Define constants
 REPORTS_DIR = "reports"
@@ -167,7 +168,6 @@ def generate_patient_report(
         Dictionary with report status and file information
     """
     logger = logging.getLogger(__name__)
-    
     # Get unified dashboard data with analysis
     data = get_dashboard_with_analysis(
         patient_data=patient_data,
@@ -183,9 +183,6 @@ def generate_patient_report(
     # Store dates in the data
     data['date_range']['start'] = start_date
     data['date_range']['end'] = end_date
-    
-    # Set up the report directory
-    # ensure_reports_directory()
     
     # Generate filename
     if patient_id:

@@ -6,10 +6,12 @@ Centralizes all dashboard-related functionality with a focus on data formatting 
 import json
 import logging
 from datetime import datetime, date
+import os
 from typing import Dict, Any, Optional
 
 from services.prompt import get_dashboard_analysis
 from data_access.main import get_nutrition_reference
+from utils.utils import convert_dates_to_strings
 
 logger = logging.getLogger(__name__)
 
@@ -48,8 +50,6 @@ def format_dashboard_data(patient_data: Dict[str, Any], start_date: Optional[str
     Returns:
         Formatted dashboard data dictionary
     """
-    logger = logging.getLogger(__name__)
-    logger.info(f"<><><><> format dashbord data: {patient_data}")
     
     # Extract patient info
     patient_info = patient_data.get('patient_info', {})
@@ -230,31 +230,51 @@ def get_dashboard_with_analysis(
     Returns:
         Formatted dashboard data dictionary)
     """
-    logger = logging.getLogger(__name__)
+    data_directory = 'data_storage'  # Directory where JSON files are stored
+    os.makedirs(data_directory, exist_ok=True)
+
+    logger.info(f"Generating dashboard data for patient {patient_id} from {start_date} to {end_date}")
+    logger.info(type(start_date))
+
+    file_path = os.path.join(data_directory, f'{patient_id}_{start_date}_{end_date}.json')
     
-    # Format data for dashboard display
-    dashboard_data = format_dashboard_data(patient_data, start_date, end_date)
-    
-    # Add AI-generated analysis if requested
-    if include_analysis:
-        try:
-            logger.info(f"Generating AI analysis for patient {patient_id}...")
-            
-            # Generate analysis and parse JSON response
-            analysis_json = get_dashboard_analysis(patient_data)
-            analysis_data = json.loads(analysis_json)
-            
-            # Add analysis to dashboard data
-            dashboard_data['ai_analysis'] = analysis_data
-            logger.info("AI analysis successfully generated and added to dashboard data")
-        except Exception as analysis_error:
-            logger.error(f"Error generating AI analysis: {str(analysis_error)}")
-            dashboard_data['ai_analysis'] = {
-                "SUMMARY": "AI analysis could not be generated at this time.",
-                "ANALYSIS": "",
-                "RECOMMENDATIONS": "",
-                "HEALTH_INSIGHTS": ""
-            }
-    
+    # Check if the data already exists
+    if not os.path.exists(file_path):
+        # Format data for dashboard display
+        dashboard_data = format_dashboard_data(patient_data, start_date, end_date)
+
+        logger.info(f"get_dashboard_with_analysis: {dashboard_data}")
+        
+        # Add AI-generated analysis if requested
+        if include_analysis:
+            try:
+                logger.info(f"Generating AI analysis for patient {patient_id}...")
+                
+                # Generate analysis and parse JSON response
+                analysis_json = get_dashboard_analysis(patient_data)
+                analysis_data = json.loads(analysis_json)
+                
+                # Add analysis to dashboard data
+                dashboard_data['ai_analysis'] = analysis_data
+                logger.info("AI analysis successfully generated and added to dashboard data")
+            except Exception as analysis_error:
+                logger.error(f"Error generating AI analysis: {str(analysis_error)}")
+                dashboard_data['ai_analysis'] = {
+                    "SUMMARY": "AI analysis could not be generated at this time.",
+                    "ANALYSIS": "",
+                    "RECOMMENDATIONS": "",
+                    "HEALTH_INSIGHTS": ""
+                }
+        with open(file_path, 'w') as file:
+            logger.info(f"Saving dashboard data to {file_path}")
+            json.dump(dashboard_data, file)
+
+    elif os.path.exists(file_path):
+        logger.info(f"Dashboard data already exists for patient {patient_id} from {start_date} to {end_date}. Loading from file.")
+        with open(file_path, 'r') as file:
+            return json.load(file)
+    else:
+        return {'message': 'Data not found.'}, 404
+
     logger.info(f"Dashboard data prepared for patient {patient_id} with {len(dashboard_data.get('food_items', []))} food items")
     return dashboard_data

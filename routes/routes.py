@@ -67,7 +67,6 @@ def get_dashboard_data():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
     include_analysis = request.args.get('include_analysis', 'false').lower() == 'true'
-    data_format = request.args.get('format', 'standard')
 
     try:
         patient_data = get_patient_data(patient_id)
@@ -78,6 +77,7 @@ def get_dashboard_data():
             end_date=end_date,
             include_analysis=include_analysis,
         )
+        logger.info(f"Dashboard data retrieved: {result_data}")
         return jsonify(result_data)
     except Exception as e:
         return handle_exception(e, "Failed to generate dashboard data")
@@ -109,6 +109,7 @@ def generate_report():
             sections=sections,
             include_ai=include_ai
         )
+
         return jsonify(report_result)
     except Exception as e:
         return handle_exception(e, "Failed to generate report")

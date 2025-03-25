@@ -1,6 +1,5 @@
-import json
-import logging
 from data_access.main import get_allergies, get_food_transactions, get_nutrient_targets, get_patients
+from utils.utils import convert_dates_to_strings
 
 
 def collect_reporting_data(patient_id):
@@ -22,5 +21,7 @@ def collect_reporting_data(patient_id):
     # Get nutrient targets for the patient
     nutrient_targets = get_nutrient_targets(patient_id)
     patient_data['nutrient_targets'] = nutrient_targets
+
+    patient_data = convert_dates_to_strings(patient_data)
 
     return patient_data
