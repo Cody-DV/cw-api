@@ -80,7 +80,7 @@ async function generateDashboard() {
     // Fall back to the legacy dashboard data as last resort
     try {
         const dashboardData = await fetchDashboardData(patientId, startDate, endDate);
-        console.log("[][][][] Dashboard data generateDashboardData", dashboardData)
+        console.log("Dashboard data generateDashboardData", dashboardData)
         displayDashboard(dashboardData);
         downloadPdfBtn.classList.remove('hidden');
     } catch (fallbackError) {
@@ -168,7 +168,6 @@ function showReportCustomizationDialog() {
         modal.innerHTML = `
             <div class="modal-header">
                 <h3>Customize Report</h3>
-                <button class="close-button">&times;</button>
             </div>
             <div class="modal-body">
                 <p>Select the sections to include in your report:</p>
@@ -179,10 +178,6 @@ function showReportCustomizationDialog() {
                             <label for="${section.id}">${section.name}</label>
                         </div>
                     `).join('')}
-                </div>
-                <div class="option-item" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
-                    <input type="checkbox" id="include_ai" checked>
-                    <label for="include_ai"><strong>Include AI-generated content</strong> (may take a few seconds longer)</label>
                 </div>
             </div>
             <div class="modal-footer">
@@ -197,20 +192,6 @@ function showReportCustomizationDialog() {
         const closeButton = modal.querySelector('.close-button');
         const cancelButton = modal.querySelector('.cancel-button');
         const generateButton = modal.querySelector('.generate-button');
-        const includeAiCheckbox = modal.querySelector('#include_ai');
-        const aiAnalysisCheckbox = modal.querySelector('#ai_analysis');
-        
-        // Link AI analysis checkbox with include_ai checkbox
-        includeAiCheckbox.addEventListener('change', () => {
-            if (aiAnalysisCheckbox) {
-                if (!includeAiCheckbox.checked) {
-                    aiAnalysisCheckbox.checked = false;
-                    aiAnalysisCheckbox.disabled = true;
-                } else {
-                    aiAnalysisCheckbox.disabled = false;
-                }
-            }
-        });
         
         // Close/cancel handlers
         const closeModal = () => {
@@ -219,7 +200,7 @@ function showReportCustomizationDialog() {
             resolve(null);
         };
         
-        closeButton.addEventListener('click', closeModal);
+        // closeButton.addEventListener('click', closeModal);
         cancelButton.addEventListener('click', closeModal);
         backdrop.addEventListener('click', closeModal);
         
@@ -232,16 +213,12 @@ function showReportCustomizationDialog() {
                 .filter(cb => cb.id !== 'include_ai')
                 .map(cb => cb.value);
             
-            // Get the include_ai value
-            const includeAi = includeAiCheckbox.checked;
-            
             document.body.removeChild(backdrop);
             document.body.removeChild(modal);
             
             // Return both the sections and the includeAi flag
             resolve({
                 sections: selectedSections,
-                includeAi: includeAi
             });
         });
         
@@ -294,7 +271,6 @@ function showReportCustomizationDialog() {
                 
                 .modal-body {
                     padding: 15px;
-                    max-height: 400px;
                     overflow-y: auto;
                 }
                 
@@ -306,11 +282,13 @@ function showReportCustomizationDialog() {
                 
                 .checkbox-item {
                     display: flex;
-                    align-items: center;
+                    align-items: center; /* Aligns items vertically in the center */
+                    margin-bottom: 5px; /* Consistent spacing between checkbox items */
                 }
                 
                 .checkbox-item input {
-                    margin-right: 10px;
+                    margin-right: 10px; /* Space out the checkbox from its label */
+                    max-width: fit-content;
                 }
                 
                 .modal-footer {

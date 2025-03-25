@@ -367,42 +367,9 @@
     // Flag to signal when charts are done rendering
     window.chartsRendered = false;
     
-    // Detect if the page is being loaded in an iframe
-    const isInIframe = (window.self !== window.top);
-    if (isInIframe) {
-        // Add a class to the body to allow styling for embedded context
-        document.addEventListener('DOMContentLoaded', function() {
-            document.body.classList.add('embedded-context');
-            console.log('Report is being displayed in an iframe');
-        });
-    }
     
     // Check for unified data format and convert to the template's expected format if needed
-    let reportData = window.reportData || {};
-    
-    // If the unified data is provided, we'll use that instead of the legacy format
-    if (reportData.unified_data) {
-        console.log('Using unified data format');
-        const unifiedData = reportData.unified_data;
-        
-        // Store unified data as the main data if it exists
-        reportData = {
-            ...reportData,  // Keep legacy format for backward compatibility
-            
-            // Add direct access to unified structure sections
-            patient_info: unifiedData.patient_info,
-            date_range: unifiedData.date_range,
-            nutrients: unifiedData.nutrients,
-            food_items: unifiedData.food_items,
-            summary: unifiedData.summary,
-            report_date: unifiedData.report_date,
-            
-            // Preserve AI analysis if available
-            ai_analysis: unifiedData.ai_analysis || reportData.ai_analysis
-        };
-    } else {
-        console.log('Using legacy data format');
-    }
+    // let reportData = window.reportData || {};
     
     // Helper to format dates safely
     function formatDate(dateStr) {
@@ -490,72 +457,18 @@
             return;
         }
         
-        // Fill in patient information - handle both unified and legacy formats
-        let patientInfo = reportData.patient_info || {};
+        // Fill in patient information 
+        let patientInfo = reportData.patient;
         const summary = reportData.summary || {};
-        
-        // First check if we have data in the new unified format
-        if (reportData.patient_info) {
-            console.log('Using patient_info from unified data');
-            patientInfo = reportData.patient_info;
-        }
-        // Then check for legacy format
-        else if (reportData.nutrition_profile && reportData.nutrition_profile.patient_info) {
-            patientInfo = reportData.nutrition_profile.patient_info;
-        } 
-        // Try legacy structure with patient key
-        else if (reportData.patient) {
-            patientInfo = reportData.patient;
-        }
-        
-        // As a last resort, look for patient info in summary as a string
-        if (summary.patient_info && typeof summary.patient_info === 'string') {
-            // Try to extract from string like "Patient: Jane Smith (ID: 2)"
-            const patientMatch = summary.patient_info.match(/Patient:\s*([^(]+)\s*\(ID:\s*(\d+)\)/);
-            if (patientMatch) {
-                const fullName = patientMatch[1].trim();
-                const id = patientMatch[2];
-                
-                // If we found a match, use it to populate patientInfo
-                patientInfo = {
-                    ...patientInfo,
-                    id: id || patientInfo.id,
-                    full_name: fullName || undefined
-                };
-            }
-        }
-        
-        // Get the name from various possible sources
-        let patientName = '';
-        if (patientInfo.full_name) {
-            patientName = patientInfo.full_name;
-        } else if (patientInfo.first_name || patientInfo.last_name) {
-            patientName = `${patientInfo.first_name || ''} ${patientInfo.last_name || ''}`.trim();
-        } else if (patientInfo.name) {
-            patientName = patientInfo.name;
-        } else if (summary.patient_name) {
-            patientName = summary.patient_name;
-        }
+        let patientName = patientInfo.name;
+
         
         document.getElementById('patientName').textContent = patientName || 'N/A';
         document.getElementById('patientId').textContent = patientInfo.id || 'N/A';
         document.getElementById('patientAge').textContent = patientInfo.age || 'N/A';
         
         // Fill in report period
-        let reportPeriod = '';
-        if (reportData.start_date && reportData.end_date) {
-            const startDate = formatDate(reportData.start_date);
-            const endDate = formatDate(reportData.end_date);
-            reportPeriod = `${startDate} to ${endDate}`;
-        } else if (summary.date_range) {
-            // Try to extract date range from summary field
-            const dateMatch = summary.date_range.match(/Report period:\s*(.+)/);
-            if (dateMatch) {
-                reportPeriod = dateMatch[1].trim();
-            } else {
-                reportPeriod = summary.date_range;
-            }
-        }
+        let reportPeriod = `${reportData.date_range.start} to ${reportData.date_range.end}`;
         
         document.getElementById('reportPeriod').textContent = reportPeriod || 'N/A';
         
@@ -572,7 +485,7 @@
         document.getElementById('generationDate').textContent = formattedDate;
         
         // Render calorie chart
-        const calories = reportData.nutrition_profile?.calories || {};
+        const calories = reportData.nutrients?.calories || {};
         const caloriesCtx = document.getElementById('caloriesChart').getContext('2d');
         
         const caloriesChart = new Chart(caloriesCtx, {
@@ -582,7 +495,7 @@
                 datasets: [
                     {
                         label: 'Consumed',
-                        data: [parseFloat(calories.eaten || 0)],
+                        data: [parseFloat(calories.actual || 0)],
                         backgroundColor: '#3498db',
                         barThickness: 40, // Narrower bars to prevent overflow
                         borderWidth: 1,
@@ -684,7 +597,7 @@
         });
         
         // Render calorie summary
-        const caloriesEaten = parseFloat(calories.eaten || 0);
+        const caloriesEaten = parseFloat(calories.actual || 0);
         const caloriesTarget = parseFloat(calories.target || 0);
         
         let caloriesPercentage, caloriesStatus, caloriesMessage;
@@ -722,7 +635,7 @@
         `;
         
         // Render macronutrient pie chart
-        const macros = reportData.nutrition_profile?.macronutrients || {};
+        const macros = reportData.nutrients || {};
         const macroCanvas = document.getElementById('macronutrientChart');
         // Set custom canvas size to constrain chart width
         macroCanvas.style.maxWidth = '90%';
@@ -730,12 +643,13 @@
         const macroCtx = macroCanvas.getContext('2d');
         
         // Make sure we have valid percentages as numbers
-        const carbPercentage = parseFloat(macros.carbs?.percentage || 0);
-        const proteinPercentage = parseFloat(macros.protein?.percentage || 0); 
-        const fatPercentage = parseFloat(macros.fat?.percentage || 0);
-        
+        const carbPercentage = parseFloat(calculatePercentage(macros.carbs.actual, macros.carbs.target));
+        const proteinPercentage = parseFloat(calculatePercentage(macros.protein.actual, macros.protein.target)); 
+        const fatPercentage = parseFloat(calculatePercentage(macros.fat.actual, macros.fat.target));
+        const fiberPercentage = parseFloat(calculatePercentage(macros.fiber.actual, macros.fiber.target));
+
         // Sum percentages for pie chart normalization (avoid errors if percentages don't add to 100)
-        const totalPercentage = carbPercentage + proteinPercentage + fatPercentage;
+        const totalPercentage = carbPercentage + proteinPercentage + fatPercentage + fiberPercentage;
         
         // Only create pie chart if we have some data
         if (totalPercentage > 0) {
@@ -743,18 +657,17 @@
             const normalizedCarbs = Math.round((carbPercentage / totalPercentage) * 100);
             const normalizedProtein = Math.round((proteinPercentage / totalPercentage) * 100);
             const normalizedFat = Math.round((fatPercentage / totalPercentage) * 100);
-            
-            console.log(`Normalized percentages - Carbs: ${normalizedCarbs}%, Protein: ${normalizedProtein}%, Fat: ${normalizedFat}%`);
-            
+            const normalizedFiber = Math.round((fiberPercentage / totalPercentage) * 100);
+                        
             const macroChart = new Chart(macroCtx, {
                 type: 'pie',
                 data: {
-                    labels: ['Carbs', 'Protein', 'Fat'],
+                    labels: ['Carbs', 'Protein', 'Fat', 'Fiber'],
                     datasets: [{
-                        data: [normalizedCarbs, normalizedProtein, normalizedFat],
-                        backgroundColor: ['#3498db', '#2ecc71', '#e74c3c'],
+                        data: [normalizedCarbs, normalizedProtein, normalizedFat, normalizedFiber],
+                        backgroundColor: ['#3498db', '#2ecc71', '#e74c3c', '#23ac96'],
                         borderWidth: 2,
-                        borderColor: ['#2980b9', '#27ae60', '#c0392b'],
+                        borderColor: ['#2980b9', '#27ae60', '#c0392b', '#1f9a87'],
                         hoverOffset: 15
                     }]
                 },
@@ -844,44 +757,47 @@
         // Render macronutrient progress bars
         let macroProgressHtml = '';
         
-        // First check if we have target_range, if not then use target values 
-        // converting absolute values to percentage format if needed
         if (macros.carbs) {
-            const carbsTarget = macros.carbs.target_range || 
-                               (macros.carbs.target ? '100' : '0'); // Use 100% if target exists
-            
-            const carbValue = parseFloat(macros.carbs.percentage || 0);
+            const carbsTarget = macros.carbs.target
+            const carbValue = parseFloat(macros.carbs.actual);
             macroProgressHtml += createProgressBar(
                 'Carbohydrates', 
                 carbValue.toFixed(1),
                 carbsTarget,
-                '%'
+                'g'
             );
         }
         
         if (macros.protein) {
-            const proteinTarget = macros.protein.target_range || 
-                                 (macros.protein.target ? '100' : '0');
-            
-            const proteinValue = parseFloat(macros.protein.percentage || 0);
+            const proteinTarget = macros.protein.target
+            const proteinValue = parseFloat(macros.protein.actual);
             macroProgressHtml += createProgressBar(
                 'Protein', 
                 proteinValue.toFixed(1),
                 proteinTarget,
-                '%'
+                'g'
             );
         }
         
         if (macros.fat) {
-            const fatTarget = macros.fat.target_range || 
-                              (macros.fat.target ? '100' : '0');
-            
-            const fatValue = parseFloat(macros.fat.percentage || 0);
+            const fatTarget = macros.fat.target
+            const fatValue = parseFloat(macros.fat.actual);
             macroProgressHtml += createProgressBar(
                 'Fat', 
                 fatValue.toFixed(1),
                 fatTarget,
-                '%'
+                'g'
+            );
+        }
+
+        if (macros.fiber) {
+            const fiberTarget = macros.fiber.target
+            const fiberValue = parseFloat(macros.fiber.actual);
+            macroProgressHtml += createProgressBar(
+                'Fiber', 
+                fiberValue.toFixed(1),
+                fiberTarget,
+                'g'
             );
         }
         
@@ -890,46 +806,9 @@
         // Render food items table
         const foodItemsElem = document.getElementById('foodItemsTable');
         
-        // Check both possible structures for food data
-        const foodConsumed = reportData.nutrition_profile?.food_consumed || [];
-        const foodItems = reportData.foods_consumed || [];
+        const foodItems = reportData.food_items || [];
         
-        // Process food_consumed structure (nested)
-        if (foodConsumed.length > 0) {
-            let tableHtml = `
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Food</th>
-                            <th>Quantity</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            
-            foodConsumed.forEach(meal => {
-                if (meal.items && meal.items.length > 0) {
-                    meal.items.forEach(item => {
-                        tableHtml += `
-                            <tr>
-                                <td>${item.food || 'Unknown'}</td>
-                                <td>${item.quantity || '1'}</td>
-                                <td>${formatDate(meal.time) || 'N/A'}</td>
-                            </tr>
-                        `;
-                    });
-                }
-            });
-            
-            tableHtml += `
-                    </tbody>
-                </table>
-            `;
-            foodItemsElem.innerHTML = tableHtml;
-        }
-        // Process foods_consumed structure (flat)
-        else if (foodItems.length > 0) {
+        if (foodItems.length > 0) {
             let tableHtml = `
                 <table class="data-table">
                     <thead>
