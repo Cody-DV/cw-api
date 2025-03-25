@@ -23,7 +23,6 @@ const quickQuestionBtns = document.querySelectorAll('.quick-question-btn');
 // Set up download PDF button
 downloadPdfBtn.textContent = 'Download PDF Report';
 downloadPdfBtn.classList.add('pdf-download-btn');
-downloadPdfBtn.style.marginLeft = '10px';
 downloadPdfBtn.style.backgroundColor = '#e74c3c';
 generateReportBtn.parentNode.appendChild(downloadPdfBtn);
 downloadPdfBtn.classList.add('hidden');
@@ -105,14 +104,12 @@ async function downloadPdfReport() {
     }
 
     // Extract sections and includeAi from options
-    const { sections, includeAi } = reportOptions;
+    const { sections } = reportOptions;
 
     showLoading();
     
     try {
-        // Generate a PDF report using the same unified data format for consistency
-        // The same data used in the dashboard will be used for the PDF
-        const result = await generatePdfReport(patientId, startDate, endDate, sections, includeAi);
+        const result = await generatePdfReport(patientId, startDate, endDate, sections);
         
         // Show success message with more details
         const fileFormat = result.format || 'pdf';
@@ -123,7 +120,7 @@ async function downloadPdfReport() {
             Filename: ${result.file}
             Format: ${fileFormat.toUpperCase()}
             ${result.sections_included ? `Sections included: ${result.sections_included.join(', ')}` : ''}
-            AI content included: ${includeAi ? 'Yes' : 'No'}
+            
             Renderer: ${result.renderer || 'standard'}
             
             The report has been saved to the server.

@@ -69,9 +69,6 @@ def store_report_metadata(patient_id, filename, report_type="nutrition", start_d
     Returns:
         Report metadata dictionary
     """
-
-    # logger.info(f"Trying ensure reports directory")
-    # ensure_reports_directory()
     
     metadata_file = os.path.join(REPORTS_DIR, "report_index.json")
     
@@ -81,14 +78,6 @@ def store_report_metadata(patient_id, filename, report_type="nutrition", start_d
             reports_index = json.load(f)
     else:
         reports_index = {"reports": []}
-
-    logger.info(f"Trying datetime NOW()")
-    logger.info(datetime.now().strftime('%Y%m%d_%H%M%S'))
-    
-    logger.info(f"Report metadata before storing: patient_id={patient_id}, \
-                filename={filename}, report_type={report_type}, format={format}, \
-                generated_at={datetime.now().strftime("%Y%m%d_%H%M%S")}, start_date={start_date}, \
-                end_date={end_date}")
 
     # Create metadata for the new report
     report_metadata = {
@@ -211,11 +200,8 @@ def generate_patient_report(
         
         # Generate PDF
         logger.info("Generating PDF")
-        generate_pdf(
-            data=data,
-            output_path=pdf_path,
-            template_path=template_path
-        )
+        generate_pdf(html_path)
+        
         logger.info(f"PDF created at {pdf_path}")
 
         # Store metadata

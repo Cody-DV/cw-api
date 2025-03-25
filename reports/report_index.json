@@ -444,6 +444,523 @@
         "start": "2023-03-01",
         "end": "2025-03-25"
       }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_162902.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_162903",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_165400.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_165402",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_165935.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_165935",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_170637.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_170637",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_170856.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_170856",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_171038.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_171038",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_171144.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_171144",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_171946.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_171946",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_172437.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_172437",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_172541.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_172541",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_173149.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_173149",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_174438.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_174438",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_174720.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_174722",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_175147.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_175147",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_175321.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_175324",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_175935.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_175936",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_180122.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_180123",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_180321.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_180323",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_180626.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_180627",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_180820.html",
+      "report_type": "nutrition",
+      "format": "html",
+      "generated_at": "20250325_180822",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_181822.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_181825",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_181949.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_181950",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_182313.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_182315",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_182325.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_182326",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_182929.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_182931",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_183312.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_183313",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_183508.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_183510",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_183540.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_183541",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_183652.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_183654",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_183724.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_183726",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_183808.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_183809",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_184007.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_184009",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_184054.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_184056",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_184140.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_184142",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_184929.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_184930",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_185013.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_185015",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_185035.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_185036",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_185104.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_185105",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_185229.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_185230",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_185308.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_185309",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_185401.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_185403",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_185453.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_185455",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_185528.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_185530",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_185554.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_185555",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_185905.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_185907",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250325_191015.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_191018",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
+    },
+    {
+      "patient_id": "3",
+      "filename": "3_nutrition_20250325_191155.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250325_191156",
+      "date_range": {
+        "start": "2023-03-01",
+        "end": "2025-03-25"
+      }
     }
   ]
 }

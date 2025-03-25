@@ -70,9 +70,7 @@ def generate_html_file(
         raise
 
 def generate_pdf(
-    data: Dict[str, Any],
-    output_path: str,
-    template_path: Optional[str] = None
+    html_path: str,
 ) -> str:
     """
     Generate a PDF using Node.js and Puppeteer with JavaScript charts
@@ -85,35 +83,21 @@ def generate_pdf(
     Returns:
         Path to the generated PDF file
     """
-    logger.info(f"Generating PDF to {output_path}")
+    logger.info(f"Generating PDF to {html_path}")
     
     # Check if Node.js is installed
     if not check_node_installed():
         raise RuntimeError("Node.js is not available. PDF generation requires Node.js.")
     
-    # Use default template if not provided
-    if template_path is None:
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        template_path = os.path.join(base_dir, "js", "templates", "report-template.html")
-    
-    logger.info(f"Using template: {template_path}")
-    
-    # Create temp file for data, using the custom encoder for dates
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
-        temp_data_path = temp_file.name
-        json.dump(data, temp_file, cls=DateTimeEncoder)
-    
     try:
         # Get the script path
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        node_script_path = os.path.join(base_dir, "js", "pdf-generator.js")
-        
+        node_script_path = os.path.join(base_dir, "js", "convert-to-pdf.js")
+        logger.info(f"HTML path for PDF generation: {html_path}")
         cmd = [
             "node",
             node_script_path,
-            template_path,
-            temp_data_path,
-            output_path
+            html_path
         ]
         
         logger.info(f"Running PDF generator: {' '.join(cmd)}")
@@ -142,6 +126,11 @@ def generate_pdf(
                 stderr=process.stderr
             )
         
+        base, ext = os.path.splitext(html_path)
+        
+        if ext.lower() == '.html':
+            output_path = base + '.pdf'
+
         # Verify file exists
         if os.path.exists(output_path):
             logger.info(f"PDF generated successfully at {output_path}")
@@ -157,10 +146,3 @@ def generate_pdf(
     except Exception as e:
         logger.error(f"Unexpected error during PDF generation: {str(e)}")
         raise
-    finally:
-        # Clean up the temporary data file
-        try:
-            if os.path.exists(temp_data_path):
-                os.unlink(temp_data_path)
-        except Exception as e:
-            logger.warning(f"Failed to remove temporary data file: {str(e)}")
