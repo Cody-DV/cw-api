@@ -1,0 +1,65 @@
+services:
+  api:
+    build: .
+    ports:
+      - "5174:5174"
+    volumes:
+      - ./:/app
+      - ./reports:/app/reports
+      - node_modules:/app/js/node_modules
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+      - PORT=5174
+      - DB_HOST=postgres
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=patient_nutrition_demo
+    restart: unless-stopped
+    networks:
+      - cardwatch_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["sh", "-c", "chmod +x /app/wait-for-db.sh && /app/wait-for-db.sh postgres python app.py"]
+    healthcheck:
+      test: ["CMD", "python", "/app/data_access/check_db_connection.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    depends_on:
+      - api
+    networks:
+      - cardwatch_network
+  
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: patient_nutrition_demo
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data_access/db/initdb:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cardwatch_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  node_modules:
+
+networks:
+  cardwatch_network:
+    driver: bridge

@@ -3,3 +3,15 @@ __pycache__/
 *.pyc
 .env
 .DS_Store
+*.pdf
+
+FEATURES.md
+NEXT_STEPS.md
+CLAUDE.md
+checkpoint.md
+
+reports/*
+reports/*.html
+reports/*.pdf
+reports/*.json
+data_storage/

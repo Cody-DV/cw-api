@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Dashboard</title>
     <link rel="stylesheet" href="/style.css">
+    <script src="/env-config.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -46,6 +47,34 @@
                 <div class="report-section">
                     <h2>Dietary Information</h2>
                     <div id="dietaryInfo"></div>
+                </div>
+                
+                <div class="report-section" id="chatSection">
+                    <div class="chat-header">
+                        <h2>Ask the AI Nutritionist</h2>
+                        <button id="toggleChatBtn" class="toggle-chat-btn">Open Chat</button>
+                    </div>
+                    
+                    <div id="chatInterface" class="chat-interface hidden">
+                        <div id="chatMessages" class="chat-messages"></div>
+                        
+                        <div class="quick-questions">
+                            <h4>Quick Questions:</h4>
+                            <div class="quick-questions-grid">
+                                <button class="quick-question-btn" data-question="What foods should this patient avoid based on their allergies?">Foods to Avoid</button>
+                                <button class="quick-question-btn" data-question="What are some good protein sources for this patient?">Protein Sources</button>
+                                <button class="quick-question-btn" data-question="How can this patient increase their fiber intake?">Increase Fiber</button>
+                                <button class="quick-question-btn" data-question="Suggest a day meal plan for this patient.">Meal Plan</button>
+                                <button class="quick-question-btn" data-question="What nutritional deficiencies is this patient at risk for?">Deficiency Risks</button>
+                                <button class="quick-question-btn" data-question="Recommend dietary adjustments to help this patient meet their targets.">Adjust Diet</button>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input-container">
+                            <textarea id="chatInput" placeholder="Ask a question about this patient's nutrition..."></textarea>
+                            <button id="sendChatBtn">Send</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,56 +1,102 @@
-## Installation and Running the App
+# CardWatch Reporting API
 
-To install the necessary dependencies and run the `cardwatch-reporting-api` application, follow these steps:
+A Flask-based API for generating nutrition reports with PDF generation capabilities.
+
+## Running with Docker (Recommended)
+
+The easiest way to run this application is with Docker, which handles all dependencies automatically.
+
+### Prerequisites
+
+- Docker
+- Docker Compose
+
+### Setup and Run
+
+1. Clone the repository
+2. Start the application with Docker Compose:
+
+```bash
+docker-compose up -d
+```
+
+This will:
+- Build the Docker image with all necessary dependencies
+- Start the Flask API on port 5174
+- Start a PostgreSQL database
+- Mount your local code directory for easy development
+
+3. Access the API at http://localhost:5174
+
+### Development
+
+The Docker setup mounts your local code into the container, so any changes you make to the code will be reflected immediately in the running container. The only time you need to rebuild is if you change dependencies in pyproject.toml.
+
+To rebuild:
+
+```bash
+docker-compose build
+docker-compose up -d
+```
+
+### Viewing logs
+
+```bash
+docker-compose logs -f api
+```
+
+4. **Create a `.env` file**:
+   The application requires an OpenAI API key to function properly. Create a `.env` file in the root directory of the project and add your OpenAI API key:
+   ```
+   AZURE_OPENAI_API_KEY=your_openai_api_key_here
+   ```
+
+5. **Test the `/prompt` route**:
+   ```bash
+   curl -X GET http://localhost:5174/prompt
+   ```
+
+## Manual Setup (Alternative)
+
+If you prefer to run the application without Docker, follow these steps:
 
 1. **Ensure Python 3.12 is installed**:
-   The application requires Python version 3.12 or higher. You can check your Python version by running:
    ```bash
    python --version
    ```
 
 2. **Install `uv`**:
-   `uv` is a tool for managing Python dependencies. You can install it using pip:
    ```bash
    pip install uv
    ```
 
 3. **Install dependencies**:
-   Use `uv` to install the dependencies:
    ```bash
    uv pip install -r pyproject.toml
    ```
 
 4. **Run the application**:
-   Start the Flask application by executing:
    ```bash
+   source .venv/bin/activate
    python app.py
    ```
 
-The application will be running in debug mode and can be accessed at `http://localhost:5000/`.
+The application will be running in debug mode and can be accessed at `http://localhost:5174/`.
 
-5. **Create a `.env` file**:
-   The application requires an OpenAI API key to function properly. Create a `.env` file in the root directory of the project and add your OpenAI API key and organization ID in the following format:
-   ```
-   AZURE_OPENAI_API_KEY=your_openai_api_key_here
-   ```
-   Replace `your_openai_api_key_here` with your actual OpenAI API key and organization ID.
+### System Dependencies
 
-6. **Test the `/prompt` route**:
-   To test the `/prompt` route of the application, you can use a tool like `curl` or Postman. This route will generate a dietary report based on mock data.
+For PDF generation without Docker, you'll need to install multiple system dependencies:
 
-   **Using `curl`:**
-   ```bash
-   curl -X GET http://localhost:5000/prompt
-   ```
-
-   **Using Postman:**
-   - Open Postman and create a new GET request.
-   - Enter the URL: `http://localhost:5000/prompt`
-   - Click "Send" to execute the request.
-
-   The response will be a JSON object containing the dietary report, which includes total nutrient intake and dietary notes based on the mock data.
-
-
+- libpango-1.0-0
+- libpangoft2-1.0-0
+- libpangocairo-1.0-0
+- libgdk-pixbuf2.0-0
+- libcairo2-dev
+- libxml2-dev
+- libxslt1-dev
+- libffi-dev
+- shared-mime-info
+- xhtml2pdf (Python package alternative that requires fewer system dependencies)
 
 ## Database Initialization
 

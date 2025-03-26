@@ -1,7 +1,7 @@
 import pytest
 import json
 from unittest.mock import patch, MagicMock
-from prompting.prompt import get_ai_prompt_response
+from services.prompt import get_ai_prompt_response
 
 
 @patch("prompting.prompt.azure_openai")

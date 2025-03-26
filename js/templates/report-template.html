@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CardWatch Nutrition Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <style>
+        /* Global styles */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            padding: 0;
+            margin: 0;
+            color: #2c3e50;
+            background-color: white;
+            line-height: 1.6;
+            font-size: 12pt;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        /* Container styles - with responsive behavior */
+        .container {
+            width: 100%;
+            max-width: 11in; /* Tabloid width */
+            margin: 0 auto;
+            padding: 0.75in; /* Consistent margins for print */
+            box-sizing: border-box;
+        }
+        
+        /* Responsive adjustments when embedded in iframe or viewed in browser */
+        @media screen {
+            .container {
+                padding: 20px; /* Less padding on screen */
+            }
+            
+            /* Better mobile support */
+            @media (max-width: 768px) {
+                .container {
+                    padding: 10px;
+                }
+                
+                .chart-row {
+                    flex-direction: column;
+                }
+                
+                .chart-col {
+                    width: 100% !important;
+                    flex: 1 1 100% !important;
+                }
+            }
+        }
+        
+        /* Add styles for iframe embedding context */
+        .embedded-context .container {
+            padding: 20px;
+        }
+        
+        /* Header styles */
+        .report-header {
+            position: relative;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .report-logo {
+            position: absolute;
+            top: 0;
+            right: 0;
+            max-width: 100px;
+            max-height: 60px;
+        }
+        
+        .report-title {
+            font-size: 24pt;
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+        }
+        
+        .report-subtitle {
+            font-size: 14pt;
+            color: #7f8c8d;
+            margin: 0;
+        }
+        
+        /* Section styles */
+        .report-section {
+            margin-bottom: 30px;
+            page-break-inside: avoid !important;
+        }
+        
+        /* Ensure each major section starts on a new page in PDF */
+        .report-section:not(:first-of-type) {
+            margin-top: 20px;
+        }
+        
+        .section-title {
+            color: #3498db;
+            font-size: 16pt;
+            margin: 0 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        /* Patient info card */
+        .patient-info-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #3498db;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .patient-info-item {
+            margin-bottom: 8px;
+        }
+        
+        .patient-info-item strong {
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        /* Chart containers */
+        .chart-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            height: 300px; /* Proper height for good visualization */
+            position: relative;
+            page-break-inside: avoid;
+        }
+        
+        /* Canvas styling for high quality */
+        canvas {
+            max-width: 100%;
+            image-rendering: auto;
+            box-sizing: border-box;
+        }
+        
+        /* Ensure all elements are contained */
+        * {
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+        
+        .chart-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+        
+        .chart-col {
+            flex: 1;
+        }
+        
+        /* Specific sizing for macronutrient chart to prevent overlap */
+        .chart-col-pie {
+            flex: 0 0 45% !important; /* Fixed width for pie chart column */
+        }
+        
+        .chart-col-progress {
+            padding-left: 20px; /* Add spacing between chart and progress bars */
+            overflow: hidden; /* Prevent overflow */
+            box-sizing: border-box; /* Include padding in width */
+        }
+        
+        /* Constrain pie chart size */
+        .chart-container-pie {
+            max-width: 90%;
+            margin: 0 auto;
+        }
+        
+        /* Ensure progress bars don't overflow */
+        #macronutrientProgress {
+            width: 100%;
+            box-sizing: border-box;
+            padding-right: 10px;
+        }
+        
+        /* Table styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .data-table th {
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            font-weight: 600;
+            text-align: left;
+            padding: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .data-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        /* Analysis section */
+        .analysis-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 5px solid #27ae60;
+        }
+        
+        .analysis-title {
+            color: #27ae60;
+            font-size: 14pt;
+            margin: 0 0 10px 0;
+        }
+        
+        .analysis-content {
+            color: #34495e;
+        }
+        
+        /* Footer styles */
+        .report-footer {
+            margin-top: 40px;
+            padding-top: 10px;
+            border-top: 1px solid #ecf0f1;
+            text-align: center;
+            font-size: 10pt;
+            color: #95a5a6;
+        }
+        
+        /* Page break utilities */
+        .page-break {
+            page-break-after: always;
+        }
+        
+        /* Progress bar styles */
+        .progress-container {
+            margin-bottom: 15px;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .progress-label-text {
+            max-width: 75%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .progress-bar-bg {
+            height: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+        }
+        
+        .progress-status {
+            font-weight: bold;
+        }
+        
+        .status-good {
+            color: #2ecc71;
+        }
+        
+        .status-warning {
+            color: #f39c12;
+        }
+        
+        .status-bad {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="report-header">
+            <!-- <img class="report-logo" src="logo.png" alt="CardWatch Logo"> -->
+            <h1 class="report-title">Nutrition Report</h1>
+            <p class="report-subtitle">Comprehensive Analysis & Recommendations</p>
+        </div>
+        
+        <!-- Patient Information Section -->
+        <div class="report-section">
+            <h2 class="section-title">Patient Information</h2>
+            <div class="patient-info-card">
+                <div class="patient-info-left">
+                    <p class="patient-info-item"><strong>Name:</strong> <span id="patientName">-</span></p>
+                    <p class="patient-info-item"><strong>Patient ID:</strong> <span id="patientId">-</span></p>
+                    <p class="patient-info-item"><strong>Age:</strong> <span id="patientAge">-</span></p>
+                </div>
+                <div class="patient-info-right">
+                    <p class="patient-info-item"><strong>Report Period:</strong> <span id="reportPeriod">-</span></p>
+                    <p class="patient-info-item"><strong>Generated:</strong> <span id="reportDate">-</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Caloric Intake Section -->
+        <div class="report-section">
+            <h2 class="section-title">Caloric Intake</h2>
+            <div class="chart-container">
+                <canvas id="caloriesChart"></canvas>
+            </div>
+            <div id="caloriesSummary"></div>
+        </div>
+        
+        <!-- Macronutrient Distribution Section -->
+        <div class="report-section">
+            <h2 class="section-title">Macronutrient Distribution</h2>
+            <div class="chart-row">
+                <div class="chart-col chart-col-pie">
+                    <div class="chart-container chart-container-pie">
+                        <canvas id="macronutrientChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-col chart-col-progress">
+                    <div id="macronutrientProgress"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Food Consumed Section -->
+        <div class="report-section">
+            <h2 class="section-title">Foods Consumed</h2>
+            <div id="foodItemsTable"></div>
+        </div>
+        
+        <!-- AI Analysis Section -->
+        <div class="report-section">
+            <h2 class="section-title">AI Nutritional Analysis</h2>
+            <div id="aiAnalysis"></div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="report-footer">
+            <p>CardWatch Nutritional Monitoring System</p>
+            <p>Generated on <span id="generationDate">-</span></p>
+        </div>
+    </div>
+    
+    <!-- Data will be injected here by the PDF generator -->
+    <script>
+    /* DATA_PLACEHOLDER */
+    
+    // Flag to signal when charts are done rendering
+    window.chartsRendered = false;
+    
+    
+    // Check for unified data format and convert to the template's expected format if needed
+    // let reportData = window.reportData || {};
+    
+    // Helper to format dates safely
+    function formatDate(dateStr) {
+        if (!dateStr) return 'N/A';
+        try {
+            const date = new Date(dateStr);
+            // Check if the date is valid
+            if (isNaN(date.getTime())) {
+                return dateStr; // Return original string if not a valid date
+            }
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        } catch (e) {
+            console.error('Error formatting date:', e, dateStr);
+            return String(dateStr); // Convert to string and return
+        }
+    }
+    
+    // Helper to calculate percentage for progress bars
+    function calculatePercentage(actual, target) {
+        if (!target || target === 0 || !actual) return 0;
+        // Convert to numbers to ensure proper calculation
+        const numActual = parseFloat(actual);
+        const numTarget = parseFloat(target);
+        return Math.round((numActual / numTarget) * 100);
+    }
+    
+    // Helper to determine status class based on percentage
+    function getStatusClass(percentage) {
+        // For calorie targets, lower is bad if it's too low
+        if (percentage < 50) return 'status-bad';       // Drastically under
+        if (percentage < 80) return 'status-warning';   // Moderately under
+        if (percentage > 120) return 'status-bad';      // Significantly over
+        if (percentage > 110) return 'status-warning';  // Moderately over
+        return 'status-good';                           // Just right
+    }
+    
+    // Helper to create progress bars
+    function createProgressBar(label, actual, target, unit = '') {
+        const percentage = calculatePercentage(actual, target);
+        const statusClass = getStatusClass(percentage);
+        
+        // Determine color based on status
+        let color;
+        if (statusClass === 'status-good') color = '#2ecc71';
+        else if (statusClass === 'status-warning') color = '#f39c12';
+        else color = '#e74c3c';
+        
+        return `
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span class="progress-label-text">${label}</span>
+                    <span class="progress-status ${statusClass}">${percentage}%</span>
+                </div>
+                <div class="progress-label">
+                    <span>Actual: ${actual}${unit}</span>
+                    <span>Target: ${target}${unit}</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: ${Math.min(percentage, 100)}%; background-color: ${color};"></div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Register chart.js plugin if available
+    try {
+        if (window.Chart && window.ChartDataLabels) {
+            Chart.register(ChartDataLabels);
+            console.log('ChartDataLabels plugin registered');
+        } else {
+            console.log('ChartDataLabels plugin not available');
+        }
+    } catch(e) {
+        console.warn('Error registering datalabels plugin', e);
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validate data
+        if (!reportData) {
+            console.error('No report data found');
+            return;
+        }
+        
+        // Fill in patient information 
+        let patientInfo = reportData.patient;
+        const summary = reportData.summary || {};
+        let patientName = patientInfo.name;
+
+        
+        document.getElementById('patientName').textContent = patientName || 'N/A';
+        document.getElementById('patientId').textContent = patientInfo.id || 'N/A';
+        document.getElementById('patientAge').textContent = patientInfo.age || 'N/A';
+        
+        // Fill in report period
+        let reportPeriod = `${reportData.date_range.start} to ${reportData.date_range.end}`;
+        
+        document.getElementById('reportPeriod').textContent = reportPeriod || 'N/A';
+        
+        // Fill in generation date
+        const now = new Date();
+        const formattedDate = now.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        document.getElementById('reportDate').textContent = formattedDate;
+        document.getElementById('generationDate').textContent = formattedDate;
+        
+        // Render calorie chart
+        const calories = reportData.nutrients?.calories || {};
+        const caloriesCtx = document.getElementById('caloriesChart').getContext('2d');
+        
+        const caloriesChart = new Chart(caloriesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Calories'],
+                datasets: [
+                    {
+                        label: 'Consumed',
+                        data: [parseFloat(calories.actual || 0)],
+                        backgroundColor: '#3498db',
+                        barThickness: 40, // Narrower bars to prevent overflow
+                        borderWidth: 1,
+                        borderColor: '#2980b9'
+                    },
+                    {
+                        label: 'Target',
+                        data: [parseFloat(calories.target || 0)],
+                        backgroundColor: '#2ecc71',
+                        barThickness: 40, // Narrower bars to prevent overflow
+                        borderWidth: 1,
+                        borderColor: '#27ae60'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // Allow chart to fill container properly
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            drawBorder: true,
+                            drawOnChartArea: true,
+                            drawTicks: true,
+                            borderDash: [],
+                            borderWidth: 1,
+                            color: '#e0e0e0'
+                        },
+                        ticks: {
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            },
+                            padding: 10
+                        },
+                        title: {
+                            display: true,
+                            text: 'Calories',
+                            font: {
+                                size: 14,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: true,
+                            drawOnChartArea: false,
+                            drawTicks: true
+                        },
+                        ticks: {
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    // Only use datalabels if the plugin is available
+                    datalabels: window.ChartDataLabels ? {
+                        color: '#333',
+                        anchor: 'end',
+                        align: 'top',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: function(value) {
+                            return value.toLocaleString();
+                        }
+                    } : false,
+                    title: {
+                        display: true,
+                        text: 'Daily Caloric Intake vs Target',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 20
+                        }
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 15,
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Render calorie summary
+        const caloriesEaten = parseFloat(calories.actual || 0);
+        const caloriesTarget = parseFloat(calories.target || 0);
+        
+        let caloriesPercentage, caloriesStatus, caloriesMessage;
+        
+        // Make sure we have valid numbers
+        if (isNaN(caloriesEaten) || isNaN(caloriesTarget) || caloriesTarget === 0) {
+            caloriesPercentage = 0;
+            caloriesStatus = 'status-bad';
+            caloriesMessage = 'Caloric intake data is incomplete or missing.';
+        } else {
+            // Calculate percentage and determine status
+            caloriesPercentage = calculatePercentage(caloriesEaten, caloriesTarget);
+            caloriesStatus = getStatusClass(caloriesPercentage);
+            
+            // The key fix: check if eaten is less than target (fixed logic)
+            const isUnderTarget = caloriesEaten < caloriesTarget;
+            
+            if (caloriesStatus === 'status-good') {
+                caloriesMessage = 'Caloric intake is within recommended range.';
+            } else if (caloriesStatus === 'status-warning') {
+                caloriesMessage = isUnderTarget
+                    ? 'Caloric intake is slightly below recommended range.'
+                    : 'Caloric intake is slightly above recommended range.';
+            } else {
+                caloriesMessage = isUnderTarget
+                    ? 'Caloric intake is significantly below recommended range. Consider increasing food intake.'
+                    : 'Caloric intake is significantly above recommended range. Consider reducing food intake.';
+            }
+        }
+        
+        document.getElementById('caloriesSummary').innerHTML = `
+            <div class="analysis-card">
+                <p class="analysis-content">${caloriesMessage}</p>
+            </div>
+        `;
+        
+        // Render macronutrient pie chart
+        const macros = reportData.nutrients || {};
+        const macroCanvas = document.getElementById('macronutrientChart');
+        // Set custom canvas size to constrain chart width
+        macroCanvas.style.maxWidth = '90%';
+        macroCanvas.style.margin = '0 auto';
+        const macroCtx = macroCanvas.getContext('2d');
+        
+        // Make sure we have valid percentages as numbers
+        const carbPercentage = parseFloat(calculatePercentage(macros.carbs.actual, macros.carbs.target));
+        const proteinPercentage = parseFloat(calculatePercentage(macros.protein.actual, macros.protein.target)); 
+        const fatPercentage = parseFloat(calculatePercentage(macros.fat.actual, macros.fat.target));
+        const fiberPercentage = parseFloat(calculatePercentage(macros.fiber.actual, macros.fiber.target));
+
+        // Sum percentages for pie chart normalization (avoid errors if percentages don't add to 100)
+        const totalPercentage = carbPercentage + proteinPercentage + fatPercentage + fiberPercentage;
+        
+        // Only create pie chart if we have some data
+        if (totalPercentage > 0) {
+            // Calculate percentages of total to ensure values add up to 100%
+            const normalizedCarbs = Math.round((carbPercentage / totalPercentage) * 100);
+            const normalizedProtein = Math.round((proteinPercentage / totalPercentage) * 100);
+            const normalizedFat = Math.round((fatPercentage / totalPercentage) * 100);
+            const normalizedFiber = Math.round((fiberPercentage / totalPercentage) * 100);
+                        
+            const macroChart = new Chart(macroCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Carbs', 'Protein', 'Fat', 'Fiber'],
+                    datasets: [{
+                        data: [normalizedCarbs, normalizedProtein, normalizedFat, normalizedFiber],
+                        backgroundColor: ['#3498db', '#2ecc71', '#e74c3c', '#23ac96'],
+                        borderWidth: 2,
+                        borderColor: ['#2980b9', '#27ae60', '#c0392b', '#1f9a87'],
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Allow chart to fill container
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 10,
+                            top: 10,
+                            bottom: 0
+                        }
+                    },
+                    plugins: {
+                        // Only use datalabels if the plugin is available
+                        datalabels: window.ChartDataLabels ? {
+                            color: '#fff',
+                            font: {
+                                weight: 'bold',
+                                size: 14
+                            },
+                            formatter: function(value) {
+                                return value + '%';
+                            }
+                        } : false,
+                        title: {
+                            display: true,
+                            text: 'Macronutrient Distribution',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            padding: {
+                                top: 10,
+                                bottom: 20
+                            }
+                        },
+                        legend: {
+                            position: 'right',
+                            align: 'center',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 8,
+                                font: {
+                                    size: 11
+                                },
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map(function(label, i) {
+                                            const meta = chart.getDatasetMeta(0);
+                                            const style = meta.controller.getStyle(i);
+                                            
+                                            return {
+                                                text: `${label}: ${data.datasets[0].data[i]}%`,
+                                                fillStyle: style.backgroundColor,
+                                                strokeStyle: style.borderColor,
+                                                lineWidth: style.borderWidth,
+                                                hidden: isNaN(data.datasets[0].data[i]) || meta.data[i].hidden,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            // Display "No data" message if no macronutrient data
+            macroCtx.font = '14px Arial';
+            macroCtx.fillStyle = '#7f8c8d';
+            macroCtx.textAlign = 'center';
+            macroCtx.fillText('No macronutrient data available', 150, 100);
+        }
+        
+        // Render macronutrient progress bars
+        let macroProgressHtml = '';
+        
+        if (macros.carbs) {
+            const carbsTarget = macros.carbs.target
+            const carbValue = parseFloat(macros.carbs.actual);
+            macroProgressHtml += createProgressBar(
+                'Carbohydrates', 
+                carbValue.toFixed(1),
+                carbsTarget,
+                'g'
+            );
+        }
+        
+        if (macros.protein) {
+            const proteinTarget = macros.protein.target
+            const proteinValue = parseFloat(macros.protein.actual);
+            macroProgressHtml += createProgressBar(
+                'Protein', 
+                proteinValue.toFixed(1),
+                proteinTarget,
+                'g'
+            );
+        }
+        
+        if (macros.fat) {
+            const fatTarget = macros.fat.target
+            const fatValue = parseFloat(macros.fat.actual);
+            macroProgressHtml += createProgressBar(
+                'Fat', 
+                fatValue.toFixed(1),
+                fatTarget,
+                'g'
+            );
+        }
+
+        if (macros.fiber) {
+            const fiberTarget = macros.fiber.target
+            const fiberValue = parseFloat(macros.fiber.actual);
+            macroProgressHtml += createProgressBar(
+                'Fiber', 
+                fiberValue.toFixed(1),
+                fiberTarget,
+                'g'
+            );
+        }
+        
+        document.getElementById('macronutrientProgress').innerHTML = macroProgressHtml;
+        
+        // Render food items table
+        const foodItemsElem = document.getElementById('foodItemsTable');
+        
+        const foodItems = reportData.food_items || [];
+        
+        if (foodItems.length > 0) {
+            let tableHtml = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Food</th>
+                            <th>Calories</th>
+                            <th>Servings</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            foodItems.forEach(item => {
+                tableHtml += `
+                    <tr>
+                        <td>${item.name || 'Unknown'}</td>
+                        <td>${item.calories || 'N/A'}</td>
+                        <td>${item.servings || '1'}</td>
+                        <td>${formatDate(item.date) || 'N/A'}</td>
+                    </tr>
+                `;
+            });
+            
+            tableHtml += `
+                    </tbody>
+                </table>
+            `;
+            foodItemsElem.innerHTML = tableHtml;
+        } else {
+            foodItemsElem.innerHTML = '<p>No food consumption data available for this period.</p>';
+        }
+        
+        // Render AI analysis
+        const aiAnalysisElem = document.getElementById('aiAnalysis');
+        if (reportData.ai_analysis) {
+            const analysis = reportData.ai_analysis;
+            
+            // Handle both string and structured format
+            if (typeof analysis === 'string') {
+                aiAnalysisElem.innerHTML = `
+                    <div class="analysis-card">
+                        <p class="analysis-content">${analysis}</p>
+                    </div>
+                `;
+            } else {
+                // Structured format with sections
+                let analysisHtml = '';
+                
+                if (analysis.SUMMARY) {
+                    analysisHtml += `
+                        <div class="analysis-card">
+                            <h3 class="analysis-title">Summary</h3>
+                            <p class="analysis-content">${analysis.SUMMARY}</p>
+                        </div>
+                    `;
+                }
+                
+                if (analysis.RECOMMENDATIONS) {
+                    analysisHtml += `
+                        <div class="analysis-card">
+                            <h3 class="analysis-title">Recommendations</h3>
+                            <p class="analysis-content">${analysis.RECOMMENDATIONS}</p>
+                        </div>
+                    `;
+                }
+                
+                if (analysis.ANALYSIS) {
+                    analysisHtml += `
+                        <div class="analysis-card">
+                            <h3 class="analysis-title">Detailed Analysis</h3>
+                            <p class="analysis-content">${analysis.ANALYSIS}</p>
+                        </div>
+                    `;
+                }
+                
+                if (analysis.HEALTH_INSIGHTS) {
+                    analysisHtml += `
+                        <div class="analysis-card">
+                            <h3 class="analysis-title">Health Insights</h3>
+                            <p class="analysis-content">${analysis.HEALTH_INSIGHTS}</p>
+                        </div>
+                    `;
+                }
+                
+                aiAnalysisElem.innerHTML = analysisHtml || '<p>No AI analysis available.</p>';
+            }
+        } else {
+            aiAnalysisElem.innerHTML = '<p>No AI analysis available for this report.</p>';
+        }
+        
+        // Signal that charts are rendered
+        setTimeout(() => {
+            window.chartsRendered = true;
+            console.log('Charts rendered successfully');
+        }, 1000);
+    });
+    </script>
+</body>
+</html>
