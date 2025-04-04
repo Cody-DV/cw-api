@@ -9,34 +9,12 @@ from datetime import datetime, date
 import os
 from typing import Dict, Any, Optional
 
-from services.prompt import get_dashboard_analysis
+from services.aggregator import filter_transactions
 from data_access.main import get_nutrition_reference
-from utils.utils import convert_dates_to_strings
+from utils.utils import calculate_age, convert_dates_to_strings
 
 logger = logging.getLogger(__name__)
 
-
-def calculate_age(birth_date):
-    """
-    Calculate age from birthdate
-    
-    Args:
-        birth_date: Date of birth as string ('YYYY-MM-DD') or date object
-        
-    Returns:
-        Age as an integer, or empty string if calculation fails
-    """
-    if not birth_date:
-        return ''
-    
-    try:
-        if isinstance(birth_date, str):
-            birth_date = datetime.strptime(birth_date, '%Y-%m-%d').date()
-        
-        today = date.today()
-        return today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
-    except (ValueError, TypeError):
-        return ''
 
 def format_dashboard_data(patient_data: Dict[str, Any], start_date: Optional[str] = None, end_date: Optional[str] = None) -> Dict[str, Any]:
     """
@@ -51,6 +29,8 @@ def format_dashboard_data(patient_data: Dict[str, Any], start_date: Optional[str
         Formatted dashboard data dictionary
     """
     
+    logger.info(f"Formating patient data: {patient_data}")
+
     # Extract patient info
     patient_info = patient_data.get('patient_info', {})
     patient_id = patient_info.get('id', 'unknown')
@@ -74,37 +54,9 @@ def format_dashboard_data(patient_data: Dict[str, Any], start_date: Optional[str
         except (ValueError, TypeError) as e:
             logger.error(f"Failed to process nutrition reference ID: {e}")
 
-    logger.info(f"Nutrition ref dict {nutrition_ref_dict}")
-    
-    # Filter transactions by date if start_date and end_date are provided
-    if start_date and end_date:
-        try:
-            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
-            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
-            
-            logger.info(f"Filtering transactions by date: {start_date_obj} to {end_date_obj}")
-            
-            filtered_transactions = []
-            for transaction in transactions:
-                if 'consumption_date' in transaction:
-                    try:
-                        # Handle both string and date object types for consumption_date
-                        transaction_date = transaction['consumption_date']
-                        if isinstance(transaction_date, str):
-                            transaction_date = datetime.strptime(transaction_date, '%Y-%m-%d').date()
-                        
-                        # Include transactions that are within the date range
-                        if start_date_obj <= transaction_date <= end_date_obj:
-                            filtered_transactions.append(transaction)
-                    except (ValueError, TypeError) as e:
-                        logger.error(f"Error processing transaction date: {e}")
-                        continue
-            
-            # Replace the original transactions list with filtered one
-            transactions = filtered_transactions
-            logger.info(f"After date filtering: {len(transactions)} transactions remain")
-        except (ValueError, TypeError) as date_error:
-            logger.error(f"Date filtering error: {date_error}")
+    # logger.info(f"Nutrition ref dict {nutrition_ref_dict}")
+
+    transactions = filter_transactions(transactions, start_date, end_date)
     
     # Compute total calories and servings
     total_calories = 0
@@ -204,77 +156,86 @@ def format_dashboard_data(patient_data: Dict[str, Any], start_date: Optional[str
     return dashboard_data
 
 
-def calculate_percentage(actual, target):
-    """Calculate percentage of actual vs target"""
-    if not target or target == 0:
-        return 0
-    return round((actual / target) * 100)
-
-def get_dashboard_with_analysis(
-    patient_data: Dict[str, Any], 
-    patient_id: str, 
-    start_date: Optional[str] = None, 
-    end_date: Optional[str] = None, 
-    include_analysis: bool = False, 
-) -> Dict[str, Any]:
-    """
-    Get formatted dashboard data with optional AI analysis
+# def get_dashboard_with_analysis(
+#     patient_data: Dict[str, Any], 
+#     patient_id: str, 
+#     start_date: Optional[str] = None, 
+#     end_date: Optional[str] = None, 
+#     include_analysis: bool = True, 
+# ) -> Dict[str, Any]:
+#     """
+#     Get formatted dashboard data with optional AI analysis
     
-    Args:
-        patient_data: Raw patient data
-        patient_id: Patient identifier
-        start_date: Optional start date for filtering (format: YYYY-MM-DD)
-        end_date: Optional end date for filtering (format: YYYY-MM-DD)
-        include_analysis: Whether to include AI analysis
+#     Args:
+#         patient_data: Raw patient data
+#         patient_id: Patient identifier
+#         start_date: Optional start date for filtering (format: YYYY-MM-DD)
+#         end_date: Optional end date for filtering (format: YYYY-MM-DD)
+#         include_analysis: Whether to include AI analysis
         
-    Returns:
-        Formatted dashboard data dictionary)
-    """
-    data_directory = 'data_storage'  # Directory where JSON files are stored
-    os.makedirs(data_directory, exist_ok=True)
+#     Returns:
+#         Formatted dashboard data dictionary)
+#     """
+#     data_directory = 'data_storage'  # Directory where JSON files are stored
+#     os.makedirs(data_directory, exist_ok=True)
 
-    logger.info(f"Generating dashboard data for patient {patient_id} from {start_date} to {end_date}")
-    logger.info(type(start_date))
+#     logger.info(f"Generating dashboard data for patient {patient_id} from {start_date} to {end_date}")
+#     logger.info(type(start_date))
 
-    file_path = os.path.join(data_directory, f'{patient_id}_{start_date}_{end_date}.json')
+#     file_path = os.path.join(data_directory, f'{patient_id}_{start_date}_{end_date}.json')
     
-    # Check if the data already exists
-    if not os.path.exists(file_path):
-        # Format data for dashboard display
-        dashboard_data = format_dashboard_data(patient_data, start_date, end_date)
+#     # Check if the data already exists
+#     if not os.path.exists(file_path):
+#         # Format data for dashboard display
+#         dashboard_data = format_dashboard_data(patient_data, start_date, end_date)
 
-        logger.info(f"get_dashboard_with_analysis: {dashboard_data}")
+#         logger.info(f"get_dashboard_with_analysis: {dashboard_data}")
         
-        # Add AI-generated analysis if requested
-        if include_analysis:
-            try:
-                logger.info(f"Generating AI analysis for patient {patient_id}...")
-                
-                # Generate analysis and parse JSON response
-                analysis_json = get_dashboard_analysis(patient_data)
-                analysis_data = json.loads(analysis_json)
-                
-                # Add analysis to dashboard data
-                dashboard_data['ai_analysis'] = analysis_data
-                logger.info("AI analysis successfully generated and added to dashboard data")
-            except Exception as analysis_error:
-                logger.error(f"Error generating AI analysis: {str(analysis_error)}")
-                dashboard_data['ai_analysis'] = {
-                    "SUMMARY": "AI analysis could not be generated at this time.",
-                    "ANALYSIS": "",
-                    "RECOMMENDATIONS": "",
-                    "HEALTH_INSIGHTS": ""
-                }
-        with open(file_path, 'w') as file:
-            logger.info(f"Saving dashboard data to {file_path}")
-            json.dump(dashboard_data, file)
+#         # Add AI-generated analysis if requested
+#         if include_analysis:
+#             try:
+#                 logger.info(f"Generating AI analysis for patient {patient_id}...")
 
-    elif os.path.exists(file_path):
-        logger.info(f"Dashboard data already exists for patient {patient_id} from {start_date} to {end_date}. Loading from file.")
-        with open(file_path, 'r') as file:
-            return json.load(file)
-    else:
-        return {'message': 'Data not found.'}, 404
+#                 # Create a reduced context to minimize prompt size
+#                 reduced_patient_data = patient_data.copy()
+#                 reduced_patient_data.pop("food_transactions", None)
+#                 logger.info(f"Reduced patient data for AI analysis: {reduced_patient_data}")
 
-    logger.info(f"Dashboard data prepared for patient {patient_id} with {len(dashboard_data.get('food_items', []))} food items")
-    return dashboard_data
+#                 # Send reduced data to the AI
+#                 analysis_json = get_dashboard_analysis(reduced_patient_data)
+#                 logger.info(f"AI analysis response for patient {patient_id}: {analysis_json}")
+
+#                 analysis_data = json.loads(analysis_json)
+
+#                 # Merge analysis results into the original patient_data
+#                 patient_data["ai_analysis"] = {
+#                     key: analysis_data[key]
+#                     for key in ["SUMMARY", "ANALYSIS", "RECOMMENDATIONS", "HEALTH_INSIGHTS"]
+#                     if key in analysis_data
+#                 }
+
+#                 # logger.info(f"Patient data with AI analysis appended: {patient_data}")
+#             except Exception as analysis_error:
+#                 logger.error(f"Error generating AI analysis: {str(analysis_error)}")
+#                 dashboard_data['ai_analysis'] = {
+#                     "SUMMARY": "AI analysis could not be generated at this time.",
+#                     "ANALYSIS": "",
+#                     "RECOMMENDATIONS": "",
+#                     "HEALTH_INSIGHTS": ""
+#                 }
+#         with open(file_path, 'w') as file:
+#             logger.info(f"Saving dashboard data to {file_path}")
+#             logger.info(f"Patient Data: {patient_data}")
+#             json.dump(dashboard_data, file)
+
+#     elif os.path.exists(file_path):
+#         #TODO Store without AI analyis or with - be consistent so cache works
+#         logger.info(f"Dashboard data already exists for patient {patient_id} from {start_date} to {end_date}. Loading from file.")
+#         with open(file_path, 'r') as file:
+#             return json.load(file)
+#     else:
+#         return {'message': 'Data not found.'}, 404
+
+#     logger.info(f"Dashboard data prepared for patient {patient_id} with {len(dashboard_data.get('food_items', []))} food items")
+#     logger.info(f"Dashboard data before returning: {dashboard_data}")
+#     return dashboard_data

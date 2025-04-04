@@ -1,4 +1,4 @@
-import { fetchClients, fetchDashboardData, generatePdfReport, sendChatMessage, getPatientReports } from './api.js';
+import { fetchClients, generateReport, sendChatMessage, getPatientReports } from './api.js';
 
 // DOM Elements
 const clientSelect = document.getElementById('clientSelect');
@@ -66,29 +66,29 @@ function populateClientSelect(clients) {
 }
 
 // Generate dashboard data and display it
-async function generateDashboard() {
-    const patientId = clientSelect.value;
-    const startDate = startDateInput.value;
-    const endDate = endDateInput.value;
+// async function generateDashboard() {
+//     const patientId = clientSelect.value;
+//     const startDate = startDateInput.value;
+//     const endDate = endDateInput.value;
 
-    if (!validateInputs(patientId, startDate, endDate)) {
-        return;
-    }
+//     if (!validateInputs(patientId, startDate, endDate)) {
+//         return;
+//     }
 
-    showLoading();
-    // Fall back to the legacy dashboard data as last resort
-    try {
-        const dashboardData = await fetchDashboardData(patientId, startDate, endDate);
-        console.log("Dashboard data generateDashboardData", dashboardData)
-        displayDashboard(dashboardData);
-        downloadPdfBtn.classList.remove('hidden');
-    } catch (fallbackError) {
-        showError('Failed to generate dashboard. Please try again.');
-        downloadPdfBtn.classList.add('hidden');
-    } finally {
-        hideLoading();
-    }
-}
+//     showLoading();
+//     // Fall back to the legacy dashboard data as last resort
+//     try {
+//         const dashboardData = await fetchDashboardData(patientId, startDate, endDate);
+//         console.log("Dashboard data generateDashboardData", dashboardData)
+//         displayDashboard(dashboardData);
+//         downloadPdfBtn.classList.remove('hidden');
+//     } catch (fallbackError) {
+//         showError('Failed to generate dashboard. Please try again.');
+//         downloadPdfBtn.classList.add('hidden');
+//     } finally {
+//         hideLoading();
+//     }
+// }
 
 // Download PDF report with customization options
 async function downloadPdfReport() {
@@ -109,7 +109,7 @@ async function downloadPdfReport() {
     showLoading();
     
     try {
-        const result = await generatePdfReport(patientId, startDate, endDate, sections);
+        const result = await generateReport(patientId, startDate, endDate, sections);
         
         // Show success message with more details
         const fileFormat = result.format || 'pdf';
@@ -450,8 +450,8 @@ function displayPreviousReports(reports) {
                 <p><strong>Filename:</strong> ${report.filename}</p>
             </div>
             <div class="report-actions">
-                <button class="download-button" data-filename="${report.filename}" data-format="${report.format || 'pdf'}">
-                    ${report.format === 'html' ? 'View HTML' : 'View PDF'}
+                <button class="download-button" data-filename="${report.filename}" data-format="${'html'}">
+                    View Report
                 </button>
             </div>
         `;
@@ -977,7 +977,7 @@ quickQuestionBtns.forEach(btn => {
 });
 
 // Event Listeners
-generateReportBtn.addEventListener('click', generateDashboard);
+generateReportBtn.addEventListener('click', downloadPdfReport);
 downloadPdfBtn.addEventListener('click', downloadPdfReport);
 
 // Initialize the dashboard when the page loads
@@ -992,4 +992,23 @@ clientSelect.addEventListener('change', () => {
         chatHistory = [];
         chatMessages.innerHTML = '';
     }
+});
+
+// Ensure the DOM is fully loaded before adding event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.download-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const format = this.getAttribute('data-format');
+            const filename = this.getAttribute('data-filename');
+
+            if (format === 'html') {
+                // Load the HTML report into the iframe
+                const iframe = document.getElementById('report-iframe');
+                iframe.src = `/path/to/reports/${filename}`; // Update with the correct path to your reports
+            } else {
+                // Handle PDF viewing or downloading
+                window.open(`/path/to/reports/${filename}`, '_blank');
+            }
+        });
+    });
 });

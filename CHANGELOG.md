@@ -7,44 +7,14 @@ All notable changes to the CardWatch Reporting API project will be documented in
 ### Added
 - High-quality JavaScript-rendered PDF reports
   - Integrated Node.js and Puppeteer for server-side PDF generation
-  - Created Chart.js-based visualizations for beautiful, modern charts
+  - Created Chart.js-based visualizations for modern charts
   - Implemented responsive templates with improved styling
-  - Added fallback mechanisms to WeasyPrint if JavaScript rendering fails
-  - Enhanced chart styling with better colors, legends, and interactivity
 
-- Automated scheduled report generation
-  - Added APScheduler integration for recurring report generation
-  - Created scheduling endpoints to configure report schedules
-  - Implemented daily, weekly, and monthly scheduling options
-  - Added metadata storage for scheduled reports
-  - Included manual trigger endpoint for immediate generation
-
-- Enhanced frontend integration
-  - Added schedule management UI in the dashboard
-  - Created schedule form with frequency, time, and section options
-  - Implemented schedule display and cancellation interface
-  - Added frontend API methods for scheduling reports
-
-- Containerized frontend and backend
+- Containerized frontend
   - Created separate frontend container with Vite.js
   - Updated API container with Node.js support for PDF generation
   - Enhanced Docker configuration for development and production
   - Implemented shared volume for report storage
-
-### Added
-- Enhanced PDF Report Generation
-  - Created custom DashboardPDF class for modern, visually appealing reports
-  - Added responsive metric cards matching dashboard appearance
-  - Implemented progress bars to visualize goals vs. actuals
-  - Created dashboard-style charts with improved colors and styling
-  - Added AI analysis section to PDF reports
-  - Organized content into clean, readable sections
-  - Improved typography and visual hierarchy
-  - Added styled tables with alternating row colors
-  - Implemented rounded corners and modern styling elements
-  - Added color coding for nutritional status (below/on target/above)
-  - Improved page navigation with page numbers
-  - Enhanced header and footer with clean design
   
 - AI Chat Interface for Dietitians
   - Created ChatContext class for maintaining conversation state with patient context
@@ -61,10 +31,9 @@ All notable changes to the CardWatch Reporting API project will be documented in
   - Added new `get_dashboard_analysis` function to generate AI-powered insights
   - Enhanced `/dashboard-data` endpoint with optional AI analysis
   - Added new `include_analysis` query parameter to control AI feature
-  - Implemented a beautifully styled AI analysis section in the dashboard
   - Added comprehensive sections for Summary, Analysis, Recommendations, and Health Insights
   - Improved prompt engineering for more accurate and useful nutritional feedback
-  - Added error handling for AI-generated content
+
 
 - Enhanced Report Generation feature
   - Created a report storage system to save and manage generated reports

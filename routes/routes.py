@@ -10,7 +10,6 @@ import os
 import json
 from flask import Blueprint, jsonify, request, current_app as app
 from services.aggregator import collect_reporting_data
-from services.dashboard_service import get_dashboard_with_analysis
 from services.report_service import generate_patient_report, get_reports_for_patient
 from services.chat_service import process_chat_message
 from services.js_bridge_service import DateTimeEncoder
@@ -23,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 def get_patient_data(patient_id):
     """Helper function to collect patient data."""
+    logger.info(f"Getting patient data for patient id {patient_id}")
     return collect_reporting_data(int(patient_id))
 
 def validate_patient_id(patient_id):
@@ -54,33 +54,33 @@ def get_clients():
 
     return jsonify(patients)
 
-@routes_bp.route("/dashboard-data", methods=["GET"])
-def get_dashboard_data():
-    """
-    Get dashboard data for a specific patient with optional date filtering.
-    """
-    patient_id = request.args.get('patient_id')
-    validation_error = validate_patient_id(patient_id)
-    if validation_error:
-        return validation_error
+# @routes_bp.route("/dashboard-data", methods=["GET"])
+# def get_dashboard_data():
+#     """
+#     Get dashboard data for a specific patient with optional date filtering.
+#     """
+#     patient_id = request.args.get('patient_id')
+#     validation_error = validate_patient_id(patient_id)
+#     if validation_error:
+#         return validation_error
 
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    include_analysis = request.args.get('include_analysis', 'false').lower() == 'true'
+#     start_date = request.args.get('start_date')
+#     end_date = request.args.get('end_date')
+#     include_analysis = request.args.get('include_analysis', 'false').lower() == 'true'
 
-    try:
-        patient_data = get_patient_data(patient_id)
-        result_data = get_dashboard_with_analysis(
-            patient_data=patient_data,
-            patient_id=patient_id,
-            start_date=start_date,
-            end_date=end_date,
-            include_analysis=include_analysis,
-        )
-        logger.info(f"Dashboard data retrieved: {result_data}")
-        return jsonify(result_data)
-    except Exception as e:
-        return handle_exception(e, "Failed to generate dashboard data")
+#     try:
+#         patient_data = get_patient_data(patient_id)
+#         result_data = get_dashboard_with_analysis(
+#             patient_data=patient_data,
+#             patient_id=patient_id,
+#             start_date=start_date,
+#             end_date=end_date,
+#             include_analysis=include_analysis,
+#         )
+#         logger.info(f"Dashboard data retrieved: {result_data}")
+#         return jsonify(result_data)
+#     except Exception as e:
+#         return handle_exception(e, "Failed to generate dashboard data")
 
 
 @routes_bp.route("/generate-report", methods=["GET"])

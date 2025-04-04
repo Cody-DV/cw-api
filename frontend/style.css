@@ -75,6 +75,29 @@ button:hover {
     background-color: #2980b9;
 }
 
+
+/* Ensure all elements use border-box sizing */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Style for date input fields */
+input[type="date"] {
+    width: 100%; /* Ensure it fits within its container */
+    padding: 8px; /* Adjust padding as needed */
+    border: 1px solid #ccc; /* Default border */
+    border-radius: 4px; /* Rounded corners */
+    transition: border-color 0.3s ease; /* Smooth transition for border color */
+}
+
+/* Focus state for date input fields */
+input[type="date"]:focus {
+    border-color: #3498db; /* Change border color on focus */
+    outline: none; /* Remove default outline */
+}
+
 .dashboard-content {
     background: white;
     padding: 2rem;

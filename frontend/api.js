@@ -36,32 +36,32 @@ export async function fetchClients() {
  * @param {boolean} useUnifiedFormat - Whether to use the unified data format
  * @returns {Promise<Object>} Dashboard data
  */
-export async function fetchDashboardData(patientId, startDate, endDate, includeAnalysis = true) {
-    try {
-        const params = new URLSearchParams({
-            patient_id: patientId,
-            include_analysis: includeAnalysis
-        });
+// export async function fetchDashboardData(patientId, startDate, endDate, includeAnalysis = true) {
+//     try {
+//         const params = new URLSearchParams({
+//             patient_id: patientId,
+//             include_analysis: includeAnalysis
+//         });
         
-        if (startDate) params.append('start_date', startDate);
-        if (endDate) params.append('end_date', endDate);
+//         if (startDate) params.append('start_date', startDate);
+//         if (endDate) params.append('end_date', endDate);
         
-        const response = await fetch(
-            `${API_BASE_URL}/dashboard-data?${params}`, {
-                mode: 'cors',
-            }
-        );
+//         const response = await fetch(
+//             `${API_BASE_URL}/dashboard-data?${params}`, {
+//                 mode: 'cors',
+//             }
+//         );
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch dashboard data');
-        }
+//         if (!response.ok) {
+//             throw new Error('Failed to fetch dashboard data');
+//         }
 
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        throw error;
-    }
-}
+//         return await response.json();
+//     } catch (error) {
+//         console.error('Error fetching dashboard data:', error);
+//         throw error;
+//     }
+// }
 
 
 /**
@@ -69,12 +69,12 @@ export async function fetchDashboardData(patientId, startDate, endDate, includeA
  * 
  * @param {string|number} patientId - ID of the patient
  * @param {string} startDate - Start date (YYYY-MM-DD)
- * @param {string} endDate - End date (YYYY-MM-DD)
- * @param {Array<string>} sections - List of sections to include
+ * @param {string} endDate - End date (YYYY-MM-DD)ß
+ * @param {Array<string>} sections - List of sßections to include
  * @param {boolean} includeAi - Whether to include AI analysis
  * @returns {Promise<Object>} Report generation result
  */
-export async function generatePdfReport(patientId, startDate, endDate, sections = null, includeAi = true) {
+export async function generateReport(patientId, startDate, endDate, sections = null, includeAi = true) {
     try {
         const params = new URLSearchParams();
         if (patientId) params.append('patient_id', patientId);
