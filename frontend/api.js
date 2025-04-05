@@ -93,7 +93,11 @@ export async function generateReport(patientId, startDate, endDate, sections = n
             throw new Error('Failed to generate PDF report');
         }
 
-        return await response.json();
+        // Read the response body only once
+        const responseData = await response.json();
+        console.log("Generate report result: ", responseData);
+
+        return responseData;
     } catch (error) {
         console.error('Error generating PDF report:', error);
         throw error;

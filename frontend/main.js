@@ -20,6 +20,7 @@ const chatInput = document.getElementById('chatInput');
 const sendChatBtn = document.getElementById('sendChatBtn');
 const quickQuestionBtns = document.querySelectorAll('.quick-question-btn');
 
+
 // Set up download PDF button
 downloadPdfBtn.textContent = 'Download PDF Report';
 downloadPdfBtn.classList.add('pdf-download-btn');
@@ -536,128 +537,133 @@ function validateInputs(patientId, startDate, endDate) {
     return true;
 }
 
-// Display the dashboard data
-function displayDashboard(data) {
+// Display the report
+function displayReport(data) {
     reportContainer.classList.remove('hidden');
     errorElement.classList.add('hidden');
 
-    // Display patient information
-    const patientInfo = data.patient || {};
-    const allergyList = patientInfo.allergies && patientInfo.allergies.length 
-        ? `<p><strong>Allergies:</strong> ${patientInfo.allergies.join(', ')}</p>` 
-        : '<p><strong>Allergies:</strong> None recorded</p>';
-    
-    healthMetricsContainer.innerHTML = `
-        <div class="metric-card">
-            <h3>Patient Information</h3>
-            <p><strong>Name:</strong> ${patientInfo.name || 'N/A'}</p>
-            <p><strong>Age:</strong> ${patientInfo.age || 'N/A'}</p>
-            ${allergyList}
-        </div>
-    `;
 
-    // Display nutrient information
-    const nutrients = data.nutrients || {};
-    const nutrientHtml = Object.entries(nutrients).map(([nutrient, values]) => `
-        <div class="metric-card">
-            <h3>${nutrient.charAt(0).toUpperCase() + nutrient.slice(1)}</h3>
-            <p><strong>Target:</strong> ${values.target || 0}</p>
-            <p><strong>Actual:</strong> ${values.actual || 0}</p>
-            <div class="progress-bar">
-                <div class="progress" style="width: ${calculatePercentage(values.actual, values.target)}%"></div>
-            </div>
-            <p class="percentage">${calculatePercentage(values.actual, values.target)}%</p>
-        </div>
-    `).join('');
-
-    // Display food items
-    const foodItems = data.food_items || [];
-    const foodItemsHtml = foodItems.length ? foodItems.map(item => `
-        <tr>
-            <td>${item.name || 'Unknown'}</td>
-            <td>${item.quantity || 1}</td>
-            <td>${item.date || 'N/A'}</td>
-        </tr>
-    `).join('') : '<tr><td colspan="3">No food items recorded</td></tr>';
-
-    // Summary
-    const summary = data.summary || {};
+    // // Display patient information
+    // const patientInfo = data.patient || {};
+    // const allergyList = patientInfo.allergies && patientInfo.allergies.length 
+    //     ? `<p><strong>Allergies:</strong> ${patientInfo.allergies.join(', ')}</p>` 
+    //     : '<p><strong>Allergies:</strong> None recorded</p>';
     
-    // AI Analysis Section HTML
-    let aiAnalysisHtml = '';
-    if (data.ai_analysis) {
-        const analysis = data.ai_analysis;
-        aiAnalysisHtml = `
-            <div class="ai-analysis-section">
-                <h3>AI Nutritional Analysis</h3>
-                <div class="ai-analysis-content">
-                    ${analysis.SUMMARY ? `
-                        <div class="analysis-card">
-                            <h4>Summary</h4>
-                            <p>${analysis.SUMMARY}</p>
-                        </div>
-                    ` : ''}
-                    
-                    ${analysis.ANALYSIS ? `
-                        <div class="analysis-card">
-                            <h4>Detailed Analysis</h4>
-                            <p>${analysis.ANALYSIS}</p>
-                        </div>
-                    ` : ''}
-                    
-                    ${analysis.RECOMMENDATIONS ? `
-                        <div class="analysis-card">
-                            <h4>Recommendations</h4>
-                            <p>${analysis.RECOMMENDATIONS}</p>
-                        </div>
-                    ` : ''}
-                    
-                    ${analysis.HEALTH_INSIGHTS ? `
-                        <div class="analysis-card">
-                            <h4>Health Insights</h4>
-                            <p>${analysis.HEALTH_INSIGHTS}</p>
-                        </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    }
+    // healthMetricsContainer.innerHTML = `
+    //     <div class="metric-card">
+    //         <h3>Patient Information</h3>
+    //         <p><strong>Name:</strong> ${patientInfo.name || 'N/A'}</p>
+    //         <p><strong>Age:</strong> ${patientInfo.age || 'N/A'}</p>
+    //         ${allergyList}
+    //     </div>
+    // `;
+
+    // // Display nutrient information
+    // const nutrients = data.nutrients || {};
+    // const nutrientHtml = Object.entries(nutrients).map(([nutrient, values]) => `
+    //     <div class="metric-card">
+    //         <h3>${nutrient.charAt(0).toUpperCase() + nutrient.slice(1)}</h3>
+    //         <p><strong>Target:</strong> ${values.target || 0}</p>
+    //         <p><strong>Actual:</strong> ${values.actual || 0}</p>
+    //         <div class="progress-bar">
+    //             <div class="progress" style="width: ${calculatePercentage(values.actual, values.target)}%"></div>
+    //         </div>
+    //         <p class="percentage">${calculatePercentage(values.actual, values.target)}%</p>
+    //     </div>
+    // `).join('');
+
+    // // Display food items
+    // const foodItems = data.food_items || [];
+    // const foodItemsHtml = foodItems.length ? foodItems.map(item => `
+    //     <tr>
+    //         <td>${item.name || 'Unknown'}</td>
+    //         <td>${item.quantity || 1}</td>
+    //         <td>${item.date || 'N/A'}</td>
+    //     </tr>
+    // `).join('') : '<tr><td colspan="3">No food items recorded</td></tr>';
+
+    // // Summary
+    // const summary = data.summary || {};
     
-    dietaryInfoContainer.innerHTML = `
-        <div class="report-grid">
-            <div class="nutrients-section">
-                <h3>Nutrient Information</h3>
-                <div class="nutrient-cards">
-                    ${nutrientHtml || '<p>No nutrient data available</p>'}
-                </div>
-            </div>
+    // // AI Analysis Section HTML
+    // let aiAnalysisHtml = '';
+    // if (data.ai_analysis) {
+    //     const analysis = data.ai_analysis;
+    //     aiAnalysisHtml = `
+    //         <div class="ai-analysis-section">
+    //             <h3>AI Nutritional Analysis</h3>
+    //             <div class="ai-analysis-content">
+    //                 ${analysis.SUMMARY ? `
+    //                     <div class="analysis-card">
+    //                         <h4>Summary</h4>
+    //                         <p>${analysis.SUMMARY}</p>
+    //                     </div>
+    //                 ` : ''}
+                    
+    //                 ${analysis.ANALYSIS ? `
+    //                     <div class="analysis-card">
+    //                         <h4>Detailed Analysis</h4>
+    //                         <p>${analysis.ANALYSIS}</p>
+    //                     </div>
+    //                 ` : ''}
+                    
+    //                 ${analysis.RECOMMENDATIONS ? `
+    //                     <div class="analysis-card">
+    //                         <h4>Recommendations</h4>
+    //                         <p>${analysis.RECOMMENDATIONS}</p>
+    //                     </div>
+    //                 ` : ''}
+                    
+    //                 ${analysis.HEALTH_INSIGHTS ? `
+    //                     <div class="analysis-card">
+    //                         <h4>Health Insights</h4>
+    //                         <p>${analysis.HEALTH_INSIGHTS}</p>
+    //                     </div>
+    //                 ` : ''}
+    //             </div>
+    //         </div>
+    //     `;
+    // }
+    
+    // dietaryInfoContainer.innerHTML = `
+    //     <div class="report-viewer">
+    //         <iframe id="report-iframe" style="width: 100%; height: 600px; border: none;"></iframe>
+    //     </div>
+    //     `
+    //     <div class="report-grid">
+    //         <div class="nutrients-section">
+    //             <h3>Nutrient Information</h3>
+    //             <div class="nutrient-cards">
+    //                 ${nutrientHtml || '<p>No nutrient data available</p>'}
+    //             </div>
+    //         </div>
             
-            <div class="food-items-section">
-                <h3>Food Items Consumed</h3>
-                <p>Total Items: ${summary.total_items_consumed || 0}</p>
-                <p>Total Calories: ${summary.total_calories || 0}</p>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Quantity</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${foodItemsHtml}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    //         <div class="food-items-section">
+    //             <h3>Food Items Consumed</h3>
+    //             <p>Total Items: ${summary.total_items_consumed || 0}</p>
+    //             <p>Total Calories: ${summary.total_calories || 0}</p>
+    //             <div class="table-container">
+    //                 <table>
+    //                     <thead>
+    //                         <tr>
+    //                             <th>Item</th>
+    //                             <th>Quantity</th>
+    //                             <th>Date</th>
+    //                         </tr>
+    //                     </thead>
+    //                     <tbody>
+    //                         ${foodItemsHtml}
+    //                     </tbody>
+    //                 </table>
+    //             </div>
+    //         </div>
             
-            ${aiAnalysisHtml}
-        </div>
-    `;
+    //         ${aiAnalysisHtml}
+    //     </div>
+    // `;
 
     // Add CSS for the new elements
-    addDashboardStyles();
+    // addDashboardStyles();
 }
 
 // Calculate percentage for progress bars
@@ -978,7 +984,7 @@ quickQuestionBtns.forEach(btn => {
 
 // Event Listeners
 generateReportBtn.addEventListener('click', downloadPdfReport);
-downloadPdfBtn.addEventListener('click', downloadPdfReport);
+downloadPdfBtn.addEventListener('click', displayReport);
 
 // Initialize the dashboard when the page loads
 initializeDashboard();
@@ -994,21 +1000,24 @@ clientSelect.addEventListener('change', () => {
     }
 });
 
-// Ensure the DOM is fully loaded before adding event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.download-button').forEach(button => {
-        button.addEventListener('click', function() {
-            const format = this.getAttribute('data-format');
-            const filename = this.getAttribute('data-filename');
+    document.body.addEventListener('click', function(event) {
+        if (event.target.classList.contains('download-button')) {
+            console.log("Button clicked:", event.target);
+            // const format = event.target.getAttribute('data-format');
+            const format = "html"
+            const filename = event.target.getAttribute('data-filename');
 
-            if (format === 'html') {
-                // Load the HTML report into the iframe
-                const iframe = document.getElementById('report-iframe');
-                iframe.src = `/path/to/reports/${filename}`; // Update with the correct path to your reports
-            } else {
-                // Handle PDF viewing or downloading
-                window.open(`/path/to/reports/${filename}`, '_blank');
+            const iframe = document.getElementById('report-iframe');
+
+            // Use full backend URL for Python-served reports
+            if (format === 'pdf') {
+                iframe.src = `http://localhost:5174/reports/${filename}`;
+            } else if (format === 'html') {
+                iframe.src = `http://localhost:5174/reports/${filename.replace('.pdf', '.html')}`;
             }
-        });
+
+            console.log("Iframe SRC: ", iframe.src);
+        }
     });
 });

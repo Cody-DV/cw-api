@@ -8,7 +8,7 @@ Defines all API routes and endpoints for the application
 import logging
 import os
 import json
-from flask import Blueprint, jsonify, request, current_app as app
+from flask import Blueprint, jsonify, request, send_from_directory, current_app as app
 from services.aggregator import collect_reporting_data
 from services.report_service import generate_patient_report, get_reports_for_patient
 from services.chat_service import process_chat_message
@@ -130,6 +130,15 @@ def get_patient_reports():
         return jsonify({"patient_id": patient_id, "reports": reports})
     except Exception as e:
         return handle_exception(e, "Failed to retrieve reports")
+    
+
+@routes_bp.route('/reports/<path:filename>', methods=["GET"])
+def serve_report(filename):
+    REPORTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'reports'))
+    logger.info(f"Reports DIR: {REPORTS_DIR}")
+    logger.info(f"Serving report: {filename}")
+    return send_from_directory(REPORTS_DIR, filename)
+
 
 @routes_bp.route("/chat", methods=["POST"])
 def chat():
