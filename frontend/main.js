@@ -1016,6 +1016,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (format === 'html') {
                 iframe.src = `http://localhost:5174/reports/${filename.replace('.pdf', '.html')}`;
             }
+            
+            iframe.style.display = 'block';
+            iframe.scrollIntoView({ behavior: 'smooth' });
 
             console.log("Iframe SRC: ", iframe.src);
         }
