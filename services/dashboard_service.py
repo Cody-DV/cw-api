@@ -16,144 +16,144 @@ from utils.utils import calculate_age, convert_dates_to_strings
 logger = logging.getLogger(__name__)
 
 
-def format_dashboard_data(patient_data: Dict[str, Any], start_date: Optional[str] = None, end_date: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Format patient data for dashboard display with optional date filtering.
+# def format_dashboard_data(patient_data: Dict[str, Any], start_date: Optional[str] = None, end_date: Optional[str] = None) -> Dict[str, Any]:
+#     """
+#     Format patient data for dashboard display with optional date filtering.
     
-    Args:
-        patient_data: The raw patient data from database
-        start_date: Optional start date for filtering (format: YYYY-MM-DD)
-        end_date: Optional end date for filtering (format: YYYY-MM-DD)
+#     Args:
+#         patient_data: The raw patient data from database
+#         start_date: Optional start date for filtering (format: YYYY-MM-DD)
+#         end_date: Optional end date for filtering (format: YYYY-MM-DD)
         
-    Returns:
-        Formatted dashboard data dictionary
-    """
+#     Returns:
+#         Formatted dashboard data dictionary
+#     """
     
-    logger.info(f"Formating patient data: {patient_data}")
+#     logger.info(f"Formating patient data: {patient_data}")
 
-    # Extract patient info
-    patient_info = patient_data.get('patient_info', {})
-    patient_id = patient_info.get('id', 'unknown')
+#     # Extract patient info
+#     patient_info = patient_data.get('patient_info', {})
+#     patient_id = patient_info.get('id', 'unknown')
     
-    # Extract and format allergies
-    allergies = [allergy.get('allergen', '') for allergy in patient_data.get('allergies', [])]
+#     # Extract and format allergies
+#     allergies = [allergy.get('allergen', '') for allergy in patient_data.get('allergies', [])]
     
-    # Extract food transactions
-    transactions = patient_data.get('food_transactions', [])
-    logger.info(f"Found {len(transactions)} transactions for patient: {patient_id}")
+#     # Extract food transactions
+#     transactions = patient_data.get('food_transactions', [])
+#     logger.info(f"Found {len(transactions)} transactions for patient: {patient_id}")
     
-    # Get all nutrition references for easier lookup
-    nutrition_refs = get_nutrition_reference()
+#     # Get all nutrition references for easier lookup
+#     nutrition_refs = get_nutrition_reference()
     
-    # Create a lookup dictionary with proper type conversion for IDs
-    nutrition_ref_dict = {}
-    for ref in nutrition_refs:
-        try:
-            ref_id = int(ref['id'])
-            nutrition_ref_dict[ref_id] = ref
-        except (ValueError, TypeError) as e:
-            logger.error(f"Failed to process nutrition reference ID: {e}")
+#     # Create a lookup dictionary with proper type conversion for IDs
+#     nutrition_ref_dict = {}
+#     for ref in nutrition_refs:
+#         try:
+#             ref_id = int(ref['id'])
+#             nutrition_ref_dict[ref_id] = ref
+#         except (ValueError, TypeError) as e:
+#             logger.error(f"Failed to process nutrition reference ID: {e}")
 
-    # logger.info(f"Nutrition ref dict {nutrition_ref_dict}")
+#     # logger.info(f"Nutrition ref dict {nutrition_ref_dict}")
 
-    transactions = filter_transactions(transactions, start_date, end_date)
+#     transactions = filter_transactions(transactions, start_date, end_date)
     
-    # Compute total calories and servings
-    total_calories = 0
-    food_items = []
+#     # Compute total calories and servings
+#     total_calories = 0
+#     food_items = []
     
-    for transaction in transactions:
-        # Try to get nutritional info for this transaction
-        try:
-            ref_id = int(transaction.get('nutrition_ref_id', 0))
-            nutrition_info = nutrition_ref_dict.get(ref_id, {})
+#     for transaction in transactions:
+#         # Try to get nutritional info for this transaction
+#         try:
+#             ref_id = int(transaction.get('nutrition_ref_id', 0))
+#             nutrition_info = nutrition_ref_dict.get(ref_id, {})
 
-            logger.info(nutrition_info)
+#             logger.info(nutrition_info)
             
-            food_name = nutrition_info.get('food_name', 'Unknown item')
-            serving_count = float(transaction.get('serving_count', 1))
-            calories_per_serving = float(nutrition_info.get('calories', 0))
+#             food_name = nutrition_info.get('food_name', 'Unknown item')
+#             serving_count = float(transaction.get('serving_count', 1))
+#             calories_per_serving = float(nutrition_info.get('calories', 0))
             
-            transaction_calories = calories_per_serving * serving_count
-            total_calories += transaction_calories
+#             transaction_calories = calories_per_serving * serving_count
+#             total_calories += transaction_calories
             
-            # Add to food items list
-            food_items.append({
-                'name': food_name,
-                'quantity': serving_count,
-                'calories': calories_per_serving,
-                'date': transaction.get('consumption_date', '')
-            })
-        except (ValueError, TypeError, KeyError) as e:
-            logger.error(f"Error processing transaction nutritional data: {e}")
-            continue
+#             # Add to food items list
+#             food_items.append({
+#                 'name': food_name,
+#                 'quantity': serving_count,
+#                 'calories': calories_per_serving,
+#                 'date': transaction.get('consumption_date', '')
+#             })
+#         except (ValueError, TypeError, KeyError) as e:
+#             logger.error(f"Error processing transaction nutritional data: {e}")
+#             continue
     
-    # Calculate macronutrient targets and actuals
-    carbs_actual = 0
-    protein_actual = 0
-    fat_actual = 0
-    fiber_actual = 0
+#     # Calculate macronutrient targets and actuals
+#     carbs_actual = 0
+#     protein_actual = 0
+#     fat_actual = 0
+#     fiber_actual = 0
 
-    for t in transactions:
-        if 'nutrition_ref_id' in t:
-            ref_id = int(t.get('nutrition_ref_id', 0))
-            nutrition_info = nutrition_ref_dict.get(ref_id, {})
-            serving_count = float(t.get('serving_count', 1))
+#     for t in transactions:
+#         if 'nutrition_ref_id' in t:
+#             ref_id = int(t.get('nutrition_ref_id', 0))
+#             nutrition_info = nutrition_ref_dict.get(ref_id, {})
+#             serving_count = float(t.get('serving_count', 1))
 
-            carbs_actual += float(nutrition_info.get('carbs_g', 0)) * serving_count
-            protein_actual += float(nutrition_info.get('protein_g', 0)) * serving_count
-            fat_actual += float(nutrition_info.get('fat_g', 0)) * serving_count
-            fiber_actual += float(nutrition_info.get('fiber_g', 0)) * serving_count
+#             carbs_actual += float(nutrition_info.get('carbs_g', 0)) * serving_count
+#             protein_actual += float(nutrition_info.get('protein_g', 0)) * serving_count
+#             fat_actual += float(nutrition_info.get('fat_g', 0)) * serving_count
+#             fiber_actual += float(nutrition_info.get('fiber_g', 0)) * serving_count
     
-    # Default targets - these would normally come from a patient's profile
-    calorie_target = 2000  # Default value
-    carbs_target = 250     # Default value
-    protein_target = 50    # Default value
-    fat_target = 70        # Default value
-    fiber_target = 25      # Default value
+#     # Default targets - these would normally come from a patient's profile
+#     calorie_target = 2000  # Default value
+#     carbs_target = 250     # Default value
+#     protein_target = 50    # Default value
+#     fat_target = 70        # Default value
+#     fiber_target = 25      # Default value
     
-    # Format the dashboard data
-    dashboard_data = {
-        'patient': {
-            'id': patient_id,
-            'name': f"{patient_info.get('first_name', '')} {patient_info.get('last_name', '')}",
-            'age': calculate_age(patient_info.get('date_of_birth')),
-            'allergies': allergies
-        },
-        'nutrients': {
-            'calories': {
-                'actual': total_calories,
-                'target': calorie_target
-            },
-            'carbs': {
-                'actual': carbs_actual,
-                'target': carbs_target
-            },
-            'protein': {
-                'actual': protein_actual,
-                'target': protein_target
-            },
-            'fat': {
-                'actual': fat_actual,
-                'target': fat_target
-            },
-            'fiber': {
-                'actual': fiber_actual,
-                'target': fiber_target
-            }
-        },
-        'food_items': food_items,
-        'summary': {
-            'total_calories': total_calories,
-            'total_items_consumed': len(food_items),
-            'date_range': {
-                'start': start_date or '',
-                'end': end_date or ''
-            }
-        }
-    }
+#     # Format the dashboard data
+#     dashboard_data = {
+#         'patient': {
+#             'id': patient_id,
+#             'name': f"{patient_info.get('first_name', '')} {patient_info.get('last_name', '')}",
+#             'age': calculate_age(patient_info.get('date_of_birth')),
+#             'allergies': allergies
+#         },
+#         'nutrients': {
+#             'calories': {
+#                 'actual': total_calories,
+#                 'target': calorie_target
+#             },
+#             'carbs': {
+#                 'actual': carbs_actual,
+#                 'target': carbs_target
+#             },
+#             'protein': {
+#                 'actual': protein_actual,
+#                 'target': protein_target
+#             },
+#             'fat': {
+#                 'actual': fat_actual,
+#                 'target': fat_target
+#             },
+#             'fiber': {
+#                 'actual': fiber_actual,
+#                 'target': fiber_target
+#             }
+#         },
+#         'food_items': food_items,
+#         'summary': {
+#             'total_calories': total_calories,
+#             'total_items_consumed': len(food_items),
+#             'date_range': {
+#                 'start': start_date or '',
+#                 'end': end_date or ''
+#             }
+#         }
+#     }
     
-    return dashboard_data
+#     return dashboard_data
 
 
 # def get_dashboard_with_analysis(

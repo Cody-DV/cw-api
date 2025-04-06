@@ -18,6 +18,7 @@ def collect_reporting_data(patient_id):
     allergies = get_allergies(patient_id)
     patient_data['allergies'] = allergies
 
+    # TODO: Split transactions into a separate function for performance
     # Get food transactions for the patient
     food_transactions = get_food_transactions(patient_id)
     patient_data['food_transactions'] = food_transactions

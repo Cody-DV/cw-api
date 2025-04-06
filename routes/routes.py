@@ -98,7 +98,7 @@ def generate_report():
     sections_param = request.args.get('sections')
     include_ai = request.args.get('include_ai', 'true').lower() == 'true'
     sections = [s.strip() for s in sections_param.split(',')] if sections_param else None
-
+    logger.info(f"Start date: {start_date}")
     try:
         patient_data = get_patient_data(patient_id)
         report_result = generate_patient_report(

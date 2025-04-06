@@ -1,4 +1,5 @@
 import { fetchClients, generateReport, sendChatMessage, getPatientReports } from './api.js';
+import { marked } from 'https://cdn.jsdelivr.net/npm/marked@9.0.3/lib/marked.esm.js';
 
 // DOM Elements
 const clientSelect = document.getElementById('clientSelect');
@@ -435,9 +436,19 @@ function displayPreviousReports(reports) {
         reportCard.className = 'report-card';
         
         // Format the date for display
-        const generatedDate = new Date(report.generated_at);
-        const formattedDate = generatedDate.toLocaleString();
+        // Example date: "generated_at": "20250406_011246",
+        const dateString = report.generated_at;
         
+        const year = dateString.slice(0, 4);
+        const month = dateString.slice(4, 6);
+        const day = dateString.slice(6, 8);
+        const hour = dateString.slice(9, 11);
+        const minute = dateString.slice(11, 13);
+        const second = dateString.slice(13, 15);
+    
+        // Create a Date object
+        const formattedDate = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+
         // Create date range text
         const dateRange = report.date_range && (report.date_range.start || report.date_range.end)
             ? `<p><strong>Period:</strong> ${report.date_range.start || 'N/A'} to ${report.date_range.end || 'N/A'}</p>`
@@ -666,129 +677,129 @@ function displayReport(data) {
     // addDashboardStyles();
 }
 
-// Calculate percentage for progress bars
-function calculatePercentage(actual, target) {
-    if (!target || !actual) return 0;
-    const percentage = (actual / target) * 100;
-    return Math.min(Math.round(percentage), 100); // Cap at 100%
-}
+// // Calculate percentage for progress bars
+// function calculatePercentage(actual, target) {
+//     if (!target || !actual) return 0;
+//     const percentage = (actual / target) * 100;
+//     return Math.min(Math.round(percentage), 100); // Cap at 100%
+// }
 
-// Add dynamic styles for dashboard
-function addDashboardStyles() {
-    // Check if styles already exist
-    if (!document.getElementById('dashboard-dynamic-styles')) {
-        const styleElement = document.createElement('style');
-        styleElement.id = 'dashboard-dynamic-styles';
-        styleElement.textContent = `
-            .report-grid {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
+// // Add dynamic styles for dashboard
+// function addDashboardStyles() {
+//     // Check if styles already exist
+//     if (!document.getElementById('dashboard-dynamic-styles')) {
+//         const styleElement = document.createElement('style');
+//         styleElement.id = 'dashboard-dynamic-styles';
+//         styleElement.textContent = `
+//             .report-grid {
+//                 display: grid;
+//                 grid-template-columns: 1fr;
+//                 gap: 20px;
+//             }
             
-            @media (min-width: 768px) {
-                .report-grid {
-                    grid-template-columns: 1fr 1fr;
-                }
-            }
+//             @media (min-width: 768px) {
+//                 .report-grid {
+//                     grid-template-columns: 1fr 1fr;
+//                 }
+//             }
             
-            .nutrient-cards {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                gap: 15px;
-            }
+//             .nutrient-cards {
+//                 display: grid;
+//                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+//                 gap: 15px;
+//             }
             
-            .progress-bar {
-                height: 10px;
-                background-color: #f1f1f1;
-                border-radius: 5px;
-                margin: 5px 0;
-            }
+//             .progress-bar {
+//                 height: 10px;
+//                 background-color: #f1f1f1;
+//                 border-radius: 5px;
+//                 margin: 5px 0;
+//             }
             
-            .progress {
-                height: 100%;
-                background-color: #3498db;
-                border-radius: 5px;
-            }
+//             .progress {
+//                 height: 100%;
+//                 background-color: #3498db;
+//                 border-radius: 5px;
+//             }
             
-            .percentage {
-                font-size: 0.9rem;
-                text-align: right;
-                margin: 0;
-            }
+//             .percentage {
+//                 font-size: 0.9rem;
+//                 text-align: right;
+//                 margin: 0;
+//             }
             
-            .table-container {
-                max-height: 300px;
-                overflow-y: auto;
-                margin-top: 10px;
-            }
+//             .table-container {
+//                 max-height: 300px;
+//                 overflow-y: auto;
+//                 margin-top: 10px;
+//             }
             
-            table {
-                width: 100%;
-                border-collapse: collapse;
-            }
+//             table {
+//                 width: 100%;
+//                 border-collapse: collapse;
+//             }
             
-            th, td {
-                padding: 8px;
-                text-align: left;
-                border-bottom: 1px solid #ddd;
-            }
+//             th, td {
+//                 padding: 8px;
+//                 text-align: left;
+//                 border-bottom: 1px solid #ddd;
+//             }
             
-            th {
-                background-color: #f2f2f2;
-                position: sticky;
-                top: 0;
-            }
+//             th {
+//                 background-color: #f2f2f2;
+//                 position: sticky;
+//                 top: 0;
+//             }
             
-            tr:hover {
-                background-color: #f5f5f5;
-            }
+//             tr:hover {
+//                 background-color: #f5f5f5;
+//             }
             
-            /* AI Analysis Styles */
-            .ai-analysis-section {
-                grid-column: 1 / -1;
-                margin-top: 20px;
-                background-color: #f8f9fa;
-                border-radius: 8px;
-                padding: 20px;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            }
+//             /* AI Analysis Styles */
+//             .ai-analysis-section {
+//                 grid-column: 1 / -1;
+//                 margin-top: 20px;
+//                 background-color: #f8f9fa;
+//                 border-radius: 8px;
+//                 padding: 20px;
+//                 box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+//             }
             
-            .ai-analysis-content {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
+//             .ai-analysis-content {
+//                 display: grid;
+//                 grid-template-columns: 1fr;
+//                 gap: 15px;
+//             }
             
-            @media (min-width: 768px) {
-                .ai-analysis-content {
-                    grid-template-columns: 1fr 1fr;
-                }
-            }
+//             @media (min-width: 768px) {
+//                 .ai-analysis-content {
+//                     grid-template-columns: 1fr 1fr;
+//                 }
+//             }
             
-            .analysis-card {
-                background-color: white;
-                border-radius: 8px;
-                padding: 15px;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            }
+//             .analysis-card {
+//                 background-color: white;
+//                 border-radius: 8px;
+//                 padding: 15px;
+//                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+//             }
             
-            .analysis-card h4 {
-                color: #3498db;
-                margin-top: 0;
-                margin-bottom: 10px;
-                border-bottom: 1px solid #f1f1f1;
-                padding-bottom: 5px;
-            }
+//             .analysis-card h4 {
+//                 color: #3498db;
+//                 margin-top: 0;
+//                 margin-bottom: 10px;
+//                 border-bottom: 1px solid #f1f1f1;
+//                 padding-bottom: 5px;
+//             }
             
-            .analysis-card p {
-                margin: 0;
-                line-height: 1.5;
-            }
-        `;
-        document.head.appendChild(styleElement);
-    }
-}
+//             .analysis-card p {
+//                 margin: 0;
+//                 line-height: 1.5;
+//             }
+//         `;
+//         document.head.appendChild(styleElement);
+//     }
+// }
 
 // UI Helper functions
 function showLoading() {
@@ -823,13 +834,18 @@ function toggleChat() {
 function addMessage(role, content) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${role}-message`;
-    
+
     const senderName = role === 'user' ? 'You' : 'AI Nutritionist';
+
+    // Convert markdown content to HTML
+    const htmlContent = marked(content);
+
     messageDiv.innerHTML = `
         <div class="message-sender">${senderName}</div>
-        <div class="message-content">${content}</div>
+        <div class="message-content">${htmlContent}</div>
     `;
-    
+
+    // Append to chat
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -898,6 +914,7 @@ async function sendMessage(message) {
         
         // Update chat history
         chatHistory = response.chat_history;
+        
     } catch (error) {
         hideTypingIndicator();
         addSystemMessage(`Error: ${error.message || 'Failed to get response'}`);
@@ -1010,7 +1027,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const iframe = document.getElementById('report-iframe');
 
-            // Use full backend URL for Python-served reports
+            // TODO: Set base url
             if (format === 'pdf') {
                 iframe.src = `http://localhost:5174/reports/${filename}`;
             } else if (format === 'html') {

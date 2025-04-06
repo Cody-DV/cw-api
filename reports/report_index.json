@@ -1401,6 +1401,83 @@
         "start": "2022-04-01",
         "end": "2025-04-05"
       }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250405_142524.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250405_142525",
+      "date_range": {
+        "start": "2022-04-01",
+        "end": "2025-04-05"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250405_143204.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250405_143205",
+      "date_range": {
+        "start": "2025-04-01",
+        "end": "2025-04-05"
+      }
+    },
+    {
+      "patient_id": "6",
+      "filename": "6_nutrition_20250405_143637.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250405_143638",
+      "date_range": {
+        "start": "2025-04-01",
+        "end": "2025-04-05"
+      }
+    },
+    {
+      "patient_id": "6",
+      "filename": "6_nutrition_20250405_151102.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250405_151103",
+      "date_range": {
+        "start": "2022-04-01",
+        "end": "2025-04-05"
+      }
+    },
+    {
+      "patient_id": "1",
+      "filename": "1_nutrition_20250405_154604.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250405_154605",
+      "date_range": {
+        "start": "2023-04-01",
+        "end": "2025-04-05"
+      }
+    },
+    {
+      "patient_id": "2",
+      "filename": "2_nutrition_20250406_011245.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250406_011246",
+      "date_range": {
+        "start": "2023-04-01",
+        "end": "2025-04-05"
+      }
+    },
+    {
+      "patient_id": "6",
+      "filename": "6_nutrition_20250406_121401.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250406_121402",
+      "date_range": {
+        "start": "2021-04-01",
+        "end": "2025-04-06"
+      }
     }
   ]
 }
