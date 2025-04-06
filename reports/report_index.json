@@ -1478,6 +1478,17 @@
         "start": "2021-04-01",
         "end": "2025-04-06"
       }
+    },
+    {
+      "patient_id": "6",
+      "filename": "6_nutrition_20250406_132158.pdf",
+      "report_type": "nutrition",
+      "format": "pdf",
+      "generated_at": "20250406_132159",
+      "date_range": {
+        "start": "2020-04-01",
+        "end": "2025-04-06"
+      }
     }
   ]
 }

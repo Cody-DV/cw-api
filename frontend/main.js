@@ -130,6 +130,8 @@ async function downloadPdfReport() {
         `;
         
         showSuccessMessage('Report Generated!', message);
+
+        loadReportIframe(result.file)
         
         // After generating a report, fetch and display the patient's reports
         await loadPatientReports(patientId);
@@ -980,6 +982,22 @@ function setupChatReportIntegration() {
     }
 }
 
+function loadReportIframe(filename, format = 'html') {
+    const iframe = document.getElementById('report-iframe');
+
+    if (format === 'pdf') {
+        iframe.src = `http://localhost:5174/reports/${filename}`;
+    } else {
+        iframe.src = `http://localhost:5174/reports/${filename.replace('.pdf', '.html')}`;
+    }
+
+    iframe.style.display = 'block';
+    iframe.scrollIntoView({ behavior: 'smooth' });
+
+    console.log("Iframe SRC:", iframe.src);
+}
+
+
 // Event listener for the enter key in chat input
 chatInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1014,30 +1032,20 @@ clientSelect.addEventListener('change', () => {
         // Reset chat when patient changes
         chatHistory = [];
         chatMessages.innerHTML = '';
+
+        // Hide the iframe when changing patients
+        const iframe = document.getElementById('report-iframe');
+        if (iframe) {
+            iframe.style.display = 'none';
+        }
     }
 });
 
 document.addEventListener('DOMContentLoaded', function() {
     document.body.addEventListener('click', function(event) {
         if (event.target.classList.contains('download-button')) {
-            console.log("Button clicked:", event.target);
-            // const format = event.target.getAttribute('data-format');
-            const format = "html"
             const filename = event.target.getAttribute('data-filename');
-
-            const iframe = document.getElementById('report-iframe');
-
-            // TODO: Set base url
-            if (format === 'pdf') {
-                iframe.src = `http://localhost:5174/reports/${filename}`;
-            } else if (format === 'html') {
-                iframe.src = `http://localhost:5174/reports/${filename.replace('.pdf', '.html')}`;
-            }
-            
-            iframe.style.display = 'block';
-            iframe.scrollIntoView({ behavior: 'smooth' });
-
-            console.log("Iframe SRC: ", iframe.src);
+            loadReportIframe(filename, 'html'); // or 'pdf' if needed
         }
     });
 });
