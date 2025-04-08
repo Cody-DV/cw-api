@@ -9,7 +9,6 @@ import logging
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 
-# from services.dashboard_service import get_dashboard_with_analysis
 from data_access.main import get_nutrition_reference
 from services.aggregator import filter_transactions
 from services.js_bridge_service import generate_html_file, generate_pdf
@@ -198,14 +197,6 @@ def generate_patient_report(
             }
 
     data = patient_data
-    
-    # data = get_dashboard_with_analysis(
-    #     patient_data=patient_data,
-    #     patient_id=patient_id,
-    #     start_date=start_date,
-    #     end_date=end_date,
-    #     include_analysis=include_ai,
-    # )
 
     if 'date_range' not in data:
         data['date_range'] = {}

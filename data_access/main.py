@@ -76,6 +76,7 @@ def get_nutrition_reference(food_name=None):
         
     return result_list
 
+# TODO: Get only transactions within the date range
 def get_food_transactions(patient_id=None):
     import logging
     conn = get_db_connection()

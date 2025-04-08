@@ -27,44 +27,6 @@ export async function fetchClients() {
 }
 
 /**
- * Fetch dashboard data for a specific patient
- * 
- * @param {string|number} patientId - ID of the patient
- * @param {string} startDate - Start date (YYYY-MM-DD)
- * @param {string} endDate - End date (YYYY-MM-DD)
- * @param {boolean} includeAnalysis - Whether to include AI analysis
- * @param {boolean} useUnifiedFormat - Whether to use the unified data format
- * @returns {Promise<Object>} Dashboard data
- */
-// export async function fetchDashboardData(patientId, startDate, endDate, includeAnalysis = true) {
-//     try {
-//         const params = new URLSearchParams({
-//             patient_id: patientId,
-//             include_analysis: includeAnalysis
-//         });
-        
-//         if (startDate) params.append('start_date', startDate);
-//         if (endDate) params.append('end_date', endDate);
-        
-//         const response = await fetch(
-//             `${API_BASE_URL}/dashboard-data?${params}`, {
-//                 mode: 'cors',
-//             }
-//         );
-
-//         if (!response.ok) {
-//             throw new Error('Failed to fetch dashboard data');
-//         }
-
-//         return await response.json();
-//     } catch (error) {
-//         console.error('Error fetching dashboard data:', error);
-//         throw error;
-//     }
-// }
-
-
-/**
  * Generate a PDF and HTML report for a patient
  * 
  * @param {string|number} patientId - ID of the patient
