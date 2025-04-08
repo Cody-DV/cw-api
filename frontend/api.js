@@ -65,7 +65,7 @@ export async function fetchClients() {
 
 
 /**
- * Generate a PDF report for a patient
+ * Generate a PDF and HTML report for a patient
  * 
  * @param {string|number} patientId - ID of the patient
  * @param {string} startDate - Start date (YYYY-MM-DD)

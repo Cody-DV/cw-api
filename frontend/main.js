@@ -93,20 +93,30 @@ function populateClientSelect(clients) {
 // }
 
 // Download PDF report with customization options
-async function downloadPdfReport() {
+async function downloadReport() {
     const patientId = clientSelect.value;
     const startDate = startDateInput.value;
     const endDate = endDateInput.value;
 
     // Show the report customization dialog
-    const reportOptions = await showReportCustomizationDialog();
-    if (!reportOptions) {
-        // User cancelled the dialog
-        return;
-    }
+    // const reportOptions = await showReportCustomizationDialog();
+    // if (!reportOptions) {
+    //     // User cancelled the dialog
+    //     return;
+    // }
+
+    const sections = [
+        { id: 'calories', name: 'Calories' },
+        { id: 'macronutrients', name: 'Macronutrients' },
+        { id: 'food_consumed', name: 'Food Consumed' },
+        { id: 'food_group_recommendations', name: 'Food Group Recommendations' },
+        { id: 'nutrient_intake', name: 'Nutrient Intake' },
+        { id: 'ai_analysis', name: 'AI Nutritional Analysis' },
+        { id: 'summary', name: 'Summary' }
+    ];
 
     // Extract sections and includeAi from options
-    const { sections } = reportOptions;
+    // const { sections } = reportOptions;
 
     showLoading();
     
@@ -129,7 +139,7 @@ async function downloadPdfReport() {
             You can access it at: ${result.path}
         `;
         
-        showSuccessMessage('Report Generated!', message);
+        // showSuccessMessage('Report Generated!', message);
 
         loadReportIframe(result.file)
         
@@ -1018,7 +1028,7 @@ quickQuestionBtns.forEach(btn => {
 });
 
 // Event Listeners
-generateReportBtn.addEventListener('click', downloadPdfReport);
+generateReportBtn.addEventListener('click', downloadReport);
 downloadPdfBtn.addEventListener('click', displayReport);
 
 // Initialize the dashboard when the page loads
