@@ -7,7 +7,6 @@ __pycache__/
 
 FEATURES.md
 NEXT_STEPS.md
-CLAUDE.md
 checkpoint.md
 
 reports/*
@@ -15,3 +14,4 @@ reports/*.html
 reports/*.pdf
 reports/*.json
 data_storage/
+node_modules

@@ -8,9 +8,8 @@ Defines all API routes and endpoints for the application
 import logging
 import os
 import json
-from flask import Blueprint, jsonify, request, current_app as app
+from flask import Blueprint, jsonify, request, send_from_directory, current_app as app
 from services.aggregator import collect_reporting_data
-from services.dashboard_service import get_dashboard_with_analysis
 from services.report_service import generate_patient_report, get_reports_for_patient
 from services.chat_service import process_chat_message
 from services.js_bridge_service import DateTimeEncoder
@@ -23,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 def get_patient_data(patient_id):
     """Helper function to collect patient data."""
+    logger.info(f"Getting patient data for patient id {patient_id}")
     return collect_reporting_data(int(patient_id))
 
 def validate_patient_id(patient_id):
@@ -54,34 +54,6 @@ def get_clients():
 
     return jsonify(patients)
 
-@routes_bp.route("/dashboard-data", methods=["GET"])
-def get_dashboard_data():
-    """
-    Get dashboard data for a specific patient with optional date filtering.
-    """
-    patient_id = request.args.get('patient_id')
-    validation_error = validate_patient_id(patient_id)
-    if validation_error:
-        return validation_error
-
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    include_analysis = request.args.get('include_analysis', 'false').lower() == 'true'
-
-    try:
-        patient_data = get_patient_data(patient_id)
-        result_data = get_dashboard_with_analysis(
-            patient_data=patient_data,
-            patient_id=patient_id,
-            start_date=start_date,
-            end_date=end_date,
-            include_analysis=include_analysis,
-        )
-        logger.info(f"Dashboard data retrieved: {result_data}")
-        return jsonify(result_data)
-    except Exception as e:
-        return handle_exception(e, "Failed to generate dashboard data")
-
 
 @routes_bp.route("/generate-report", methods=["GET"])
 def generate_report():
@@ -98,7 +70,7 @@ def generate_report():
     sections_param = request.args.get('sections')
     include_ai = request.args.get('include_ai', 'true').lower() == 'true'
     sections = [s.strip() for s in sections_param.split(',')] if sections_param else None
-
+    logger.info(f"Start date: {start_date}")
     try:
         patient_data = get_patient_data(patient_id)
         report_result = generate_patient_report(
@@ -130,6 +102,15 @@ def get_patient_reports():
         return jsonify({"patient_id": patient_id, "reports": reports})
     except Exception as e:
         return handle_exception(e, "Failed to retrieve reports")
+    
+
+@routes_bp.route('/reports/<path:filename>', methods=["GET"])
+def serve_report(filename):
+    REPORTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'reports'))
+    logger.info(f"Reports DIR: {REPORTS_DIR}")
+    logger.info(f"Serving report: {filename}")
+    return send_from_directory(REPORTS_DIR, filename)
+
 
 @routes_bp.route("/chat", methods=["POST"])
 def chat():

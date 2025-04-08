@@ -53,7 +53,7 @@ def get_ai_prompt_response(data):
     return response.choices[0].message.content
 
 
-def get_dashboard_analysis(data):
+def get_ai_analysis(data):
     """
     Generate a comprehensive analysis and recommendations for the dashboard display.
     Includes nutritional analysis, recommendations, and health insights.
@@ -69,7 +69,7 @@ def get_dashboard_analysis(data):
     4. HEALTH_INSIGHTS: Potential health implications based on allergies and nutritional patterns
     
     Format your response as a JSON object with these four fields. Be precise, professional, and actionable.
-    If data is insufficient for certain sections, note this in your response.
+    If data is insufficient for certain sections, note this in your response. Do not return nested JSON in the categories.
     """
     
     try:

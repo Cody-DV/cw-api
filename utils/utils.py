@@ -1,8 +1,9 @@
 import json
-import datetime
+from datetime import datetime, date
+import logging
 from decimal import Decimal
-import datetime
 
+logger = logging.getLogger(__name__)
 
 def clean_prompt_response(response):
     # Find the first occurrence of '{' and the last occurrence of '}'
@@ -33,11 +34,33 @@ def convert_dates_to_strings(json_obj):
         return {key: convert_dates_to_strings(value) for key, value in json_obj.items()}
     elif isinstance(json_obj, list):
         return [convert_dates_to_strings(element) for element in json_obj]
-    elif isinstance(json_obj, datetime.datetime):
+    elif isinstance(json_obj, datetime):
         return json_obj.isoformat()
-    elif isinstance(json_obj, datetime.date):
+    elif isinstance(json_obj, date):
         return json_obj.isoformat()
     elif isinstance(json_obj, Decimal):
         return str(json_obj)
     else:
         return json_obj
+    
+
+def calculate_age(birth_date):
+    if not birth_date:
+        return ''
+    
+    try:
+        if isinstance(birth_date, str):
+            logging.info(f"Calculating age: {birth_date}")
+            birth_date = datetime.strptime(birth_date, '%Y-%m-%d').date()
+        
+        today = date.today()
+        return today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+    except (ValueError, TypeError):
+        return ''
+
+    
+def calculate_percentage(actual, target):
+    """Calculate percentage of actual vs target"""
+    if not target or target == 0:
+        return 0
+    return round((actual / target) * 100)
