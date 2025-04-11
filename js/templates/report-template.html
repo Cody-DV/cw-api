@@ -906,5 +906,61 @@
         }, 1000);
     });
     </script>
+    <script>
+        window.addEventListener('message', function(event) {
+            if (event.data?.type === 'enable-edit-mode') {
+                makeAISectionsEditable();
+            }
+        });
+
+
+        function makeAISectionsEditable() {
+            const fields = [
+                'edit-summary',
+                'edit-analysis',
+                'edit-recommendations',
+                'edit-health-insights'
+            ];
+
+            fields.forEach(id => {
+                const p = document.getElementById(id);
+                if (!p) return;
+
+                const textarea = document.createElement('textarea');
+                textarea.value = p.textContent.trim();
+                textarea.id = id;
+                textarea.className = 'editable-section';
+                textarea.style.width = '100%';
+                textarea.style.minHeight = '120px';
+
+                p.parentNode.replaceChild(textarea, p);
+            });
+
+            // Add save button if not already present
+            if (!document.getElementById('save-edits-btn')) {
+                const saveBtn = document.createElement('button');
+                saveBtn.textContent = 'Save Edits';
+                saveBtn.id = 'save-edits-btn';
+                saveBtn.style.marginTop = '1rem';
+                document.body.appendChild(saveBtn);
+
+                saveBtn.addEventListener('click', () => {
+                const updated = {
+                    SUMMARY: document.getElementById('edit-summary')?.value,
+                    ANALYSIS: document.getElementById('edit-analysis')?.value,
+                    RECOMMENDATIONS: document.getElementById('edit-recommendations')?.value,
+                    HEALTH_INSIGHTS: document.getElementById('edit-health-insights')?.value
+                };
+
+                window.parent.postMessage({
+                    type: 'save-ai-edits',
+                    data: updated
+                }, '*');
+                });
+            }
+            }
+
+        </script>
+        
 </body>
 </html>

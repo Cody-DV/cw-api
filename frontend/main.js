@@ -485,3 +485,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+document.getElementById('edit-report-button').addEventListener('click', () => {
+    const iframe = document.getElementById('report-iframe');
+
+    iframe.contentWindow.postMessage({ type: 'enable-edit-mode' }, '*');
+});
+
+window.addEventListener('message', async (event) => {
+    if (event.data?.type === 'save-ai-edits') {
+        const updatedFields = event.data.data;
+
+        const response = await fetch('/api/update-report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                patientId: currentPatientId,
+                updatedAiSections: updatedFields
+            })
+        });
+
+        if (response.ok) {
+            // Regenerate and reload report
+            const iframe = document.getElementById('report-iframe');
+            iframe.src = iframe.src; // reload the same report
+        }
+    }
+});
+
